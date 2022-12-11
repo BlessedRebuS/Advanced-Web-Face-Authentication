@@ -1,6 +1,12 @@
 # Identity-Protocol
 Repository per l'attività progettuale di Sicurezza dell'Informazione M Unibo
 
+# Struttura
+Nella repository ci sono due proposte di autenticazione in un server tramite Identity Provider (IDP) e Service Provider (SP).
+
+Dentro alla cartella **demo-flask**, che deriva dalla repository [flask-saml2](https://github.com/mx-moth/flask-saml2) c'è una implementazione con solo python dell'applicativo. (sconsiglio l'utilizzo di questo modulo perché, come scritto sulla repo, non è mantenuto). 
+Nella cartella corrente è invece presente una proposta che prevede un IDP fatto in node e un SP in python.
+
 # Testing
 
 Avviare l' Identity Provider con
