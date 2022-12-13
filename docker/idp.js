@@ -47,9 +47,11 @@ app.post('/register', (req, res) => {
 // A route to get the current user's profile
 app.get('/profile', checkAuthenticated, (req, res) => {
   const { username } = req.headers;
-  const user = users.get(username);
+  const sign = "SERVER1_SIGNED"
+  const result = users.get(username) + sign;
   console.log("User " + username + " is authenticated");
-  jwt.sign({user:user},'secretkey',(err,token)=>{
+
+  jwt.sign({result:result},'secretkey',(err,token)=>{
         res.json({
             token,
         });
