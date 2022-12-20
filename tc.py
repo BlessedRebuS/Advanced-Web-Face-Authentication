@@ -1,16 +1,34 @@
-from flask import Flask, request, redirect, url_for
-from Crypto.PublicKey import RSA
-from Crypto.Signature import PKCS1_v1_5
-from base64 import b64decode
+from flask import Flask, request, jsonify
+from signature import decript_message
+import requests
 
 app = Flask(__name__)
+server_list = ["http://127.0.0.1:5000/server1", "http://127.0.0.1:6000/server2", "http://127.0.0.1:7000/server3"]
 
-@app.route('/handle' , methods=['GET'])
+
+@app.route('/' , methods=['GET', 'POST'])
 def handle():
-    # get action parameter
-    action = request.args.get("action")
-    if action is None:
-        return "No action specified"
-    if action == "validate":
-        rsa_key = RSA.importKey(open('private.txt', "rb").read())
-        # decrypt text with private key
+    
+    result = []
+    for server in server_list:
+        try:
+            r = requests.get(
+                f'{server}',
+                headers={
+                'signature': "sign"
+                }
+            )
+        except:
+            print(f"Error in server {server}")
+            continue
+        if r.status_code == 200:
+            # print(r.json())
+            print(f"Server {server} is working")
+            result.append(r.json())
+        else:
+            print(f"Error in server {server}")
+    return(jsonify(result))
+
+if __name__ == "__main__":
+    app.run()
+

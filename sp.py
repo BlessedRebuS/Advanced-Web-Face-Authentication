@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for
+from flask import Flask, request, redirect, url_for, make_response
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 import requests
 
@@ -36,6 +36,10 @@ def user_loader(user_id):
     user = User(user_id)
     return user
 
+
+def checkSign(signature):
+    return True
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -48,7 +52,9 @@ def login():
             u = User(r.json())
             login_user(u)
             print(r.json())
-            return "User logged in"
+            # check the signature
+            checkSign(r.json()['signature'])
+            return f"User logged in, response: {r.json()}"
 
         else:
             return 'Unauthorized: Invalid credentials', 401

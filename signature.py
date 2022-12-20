@@ -1,5 +1,4 @@
 from Crypto.PublicKey import RSA
-from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
 
 
@@ -15,11 +14,10 @@ eQIDAQAB
 
 def decript_message(public_key, encrypted_text):
     rsa_private_key = RSA.importKey(open('key.pem', "rb").read())
-
-
     rsa_public_key = RSA.importKey(public_key)
     rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
-    print('debug encrypted text: {}'.format(encrypted_text))
+
+    # print('debug encrypted text: {}'.format(encrypted_text))
 
     rsa_private_key = PKCS1_OAEP.new(rsa_private_key)
     decrypted_text = rsa_private_key.decrypt(encrypted_text)

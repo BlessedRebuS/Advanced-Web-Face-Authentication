@@ -1,0 +1,3 @@
+Inviare chiavi private da idp.js ai client 
+Dai client chiedere al trust server la chiave pubblica dei server decifrare messaggio cifrato con quella chiave pubblica
+es: TS1 invia chiave privata alla prima richiesta e la pubblica e un messaggio cifrato con la pubblica alla seconda richiesta.
