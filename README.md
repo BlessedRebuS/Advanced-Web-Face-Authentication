@@ -11,7 +11,7 @@ Nella cartella corrente è invece presente una proposta che prevede un IDP fatto
 
 Avviare l' Identity Provider con
 
-``` node idp.js```
+```node idp.js```
 
 
 Avviare il Service Provider con
