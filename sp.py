@@ -93,16 +93,17 @@ def checkSign(signature, threshold=2):
 def login():
     global saved_sign
     global valid_List
-    if current_user.is_authenticated:
-        if(checkSign(saved_sign, THRESHOLD)):
-            jsonString = json.dumps(valid_List)
-            print("jsonString: ", jsonString)
-            return f"<h2>User logged in, signature servers:<h2> <h3>{parser(jsonString)}</h3>"
-        else:       
-                logout_user()
-                return f"<h2>User logged in, but signature servers are not enough. It is required a thresold of {THRESHOLD} servers</h2>"
-    else :
-        if request.method == "POST":
+    ### da modificare
+    # if current_user.is_authenticated:
+    #     if(checkSign(saved_sign, THRESHOLD)):
+    #         jsonString = json.dumps(valid_List)
+    #         print("jsonString: ", jsonString)
+    #         return f"<h2>User logged in, signature servers:<h2> <h3>{parser(jsonString)}</h3>"
+    #     else:       
+    #             logout_user()
+    #             return f"<h2>User logged in, but signature servers are not enough. It is required a thresold of {THRESHOLD} servers</h2>"
+    # else :
+    if request.method == "POST":
             # Get the username and password values from the form
             username = request.form["username"]
             password = request.form["password"]
