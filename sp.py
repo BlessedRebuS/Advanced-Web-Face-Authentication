@@ -7,6 +7,8 @@ import base64
 app = Flask(__name__)
 app.secret_key = 'asdasdasd'  # Change this!
 THRESHOLD = 2
+saved_sign = " "
+valid_List = []
 
 # Setup Flask-Login
 login_manager = LoginManager()
@@ -55,11 +57,12 @@ def checkSign(signature, threshold=2):
     # cycle through the signature list
     server_names = []
     signatureList = json.loads(signature)
+    global valid_List
+    valid_List = []
     for i in signatureList:
         # print(f"Signature: {sign}")
         base64_key = (i.split("|")[1])
         server_url = base64.b64decode(i.split("|")[0]).decode("utf-8")
-
         try:
             r = requests.get(
                 f'{server_url}',
@@ -73,10 +76,10 @@ def checkSign(signature, threshold=2):
         if r.status_code == 200:
             # print(r.json())
             key = r.json().split("|")[1]
-            ### non si deve controllare ad ogni richiesta, ma per semplicità lo facciamo
             if(key == base64_key):
                 print(f"Signature from {server_url} received")
                 server_names.append(server_url)
+                valid_List.append(i)
         else:
             print(f"Error, signature from {server_url} NOT received")
     print(f"Server signed: {(server_names)}")
@@ -88,23 +91,36 @@ def checkSign(signature, threshold=2):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        # Get the username and password values from the form
-        username = request.form["username"]
-        password = request.form["password"]
-
-        r = identify(username, password)
-        if r.status_code == 200:
-            # check the signature
-            if(checkSign(r.json()['signature'], THRESHOLD)):
-                u = User(r.json())
-                login_user(u)
-                return f"<h2>User logged in, signature servers:<h2> <h3>{parser(r.json()['signature'])}</h3>"
-            else:   
+    global saved_sign
+    global valid_List
+    if current_user.is_authenticated:
+        if(checkSign(saved_sign, THRESHOLD)):
+            jsonString = json.dumps(valid_List)
+            print("jsonString: ", jsonString)
+            return f"<h2>User logged in, signature servers:<h2> <h3>{parser(jsonString)}</h3>"
+        else:       
+                logout_user()
                 return f"<h2>User logged in, but signature servers are not enough. It is required a thresold of {THRESHOLD} servers</h2>"
+    else :
+        if request.method == "POST":
+            # Get the username and password values from the form
+            username = request.form["username"]
+            password = request.form["password"]
 
-        else:
-            return 'Unauthorized: Invalid credentials', 401
+            r = identify(username, password)
+            if r.status_code == 200:
+                # check the signature
+                if(checkSign(r.json()['signature'], THRESHOLD)):
+                    u = User(r.json())
+                    login_user(u)
+                    saved_sign = r.json()['signature']
+                    print("Saved: ", saved_sign)
+                    return f"<h2>User logged in, signature servers:<h2> <h3>{parser(r.json()['signature'])}</h3>"
+                else:   
+                    return f"<h2>User logged in, but signature servers are not enough. It is required a thresold of {THRESHOLD} servers</h2>"
+
+            else:
+                return 'Unauthorized: Invalid credentials', 401
 
     if current_user.is_authenticated:
         return redirect(url_for("index"))

@@ -58,6 +58,31 @@ app.post('/register', (req, res) => {
   }
 });
 
+// a route to get only the signature
+app.get('/signature', (req, res) => {
+
+  callback = function(response) {
+    signature = '';
+    response.on('data', function (chunk) {
+      signature += chunk;
+    });
+    
+    response.on('end', function () {
+    console.log("Signature Request");
+            res.json({
+                signature,
+            });
+
+    });
+  }
+
+  // request to the trust controller
+  var req2 = http.request(options, callback);
+  req2.end();
+
+});
+
+
 // A route to get the current user's profile
 app.get('/profile', checkAuthenticated, (req, res) => {
 
