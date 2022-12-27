@@ -1,5 +1,4 @@
-from flask import Flask, request, jsonify
-from signature import decript_message
+from flask import Flask, jsonify
 import requests
 
 app = Flask(__name__)
@@ -27,6 +26,7 @@ def handle():
             result.append(r.json())
         else:
             print(f"Error in server {server}")
+    print(f"Result: {(result)}")
     return(jsonify(result))
 
 if __name__ == "__main__":
