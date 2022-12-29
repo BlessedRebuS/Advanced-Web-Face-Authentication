@@ -89,6 +89,7 @@ app.get('/profile', checkAuthenticated, (req, res) => {
   callback = function(response) {
     signature = '';
     response.on('data', function (chunk) {
+      console.log("Chunk: " + chunk)
       signature += chunk;
     });
     
