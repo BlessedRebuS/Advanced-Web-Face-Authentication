@@ -78,6 +78,8 @@ def checkSign(signature, threshold=2):
             )
         except:
             print(f"Error, signature from {server_url} NOT received")
+            if(server_url in server_names):
+                server_names.remove(server_url)
             continue
         if r.status_code == 200:
             key = r.text
@@ -88,8 +90,12 @@ def checkSign(signature, threshold=2):
                     server_names.append(server_url)
             else:
                 print(f"Error, signature from {server_url} NOT received")
+                if(server_url in server_names):
+                    server_names.remove(server_url)
         else:
             print(f"Error, server {server_url} is not working")
+            if(server_url in server_names):
+                server_names.remove(server_url)
     print(f"Server signed: {(server_names)}")
 
     if(len(server_names) >= threshold):
@@ -132,6 +138,8 @@ def login():
 
 @app.route("/logout")
 def logout():
+    global server_names
+    server_names.clear()
     logout_user()
     return "User logged out"
 
