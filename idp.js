@@ -94,6 +94,37 @@ app.get('/profile', checkAuthenticated, (req, res) => {
     });
     
     response.on('end', function () {
+      console.log(req);
+      const { username } = req.headers;
+      const user = users.get(username);
+      console.log("User " + username + " is authenticated");
+      jwt.sign({user:user},'secretkey',(err,token)=>{
+            res.json({
+                token, 
+                signature,
+            });
+      });
+    });
+  }
+
+  // request to the trust controller
+  var req2 = http.request(options, callback);
+  req2.end();
+
+});
+
+// A route to get the current user's profile
+app.post('/profile1', checkAuthenticated, (req, res) => {
+
+  callback = function(response) {
+    signature = '';
+    response.on('data', function (chunk) {
+      console.log("Chunk: " + chunk)
+      signature += chunk;
+    });
+    
+    response.on('end', function () {
+      console.log(req);
       const { username } = req.headers;
       const user = users.get(username);
       console.log("User " + username + " is authenticated");
