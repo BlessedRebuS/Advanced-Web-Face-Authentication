@@ -167,13 +167,11 @@ def login_password():
 def face_send():
     image_dir = 'images'
     username = request.headers.get('username')
-    print("test")
-    print("Username: "+username)
-    fn = f'{image_dir}/{username}.jpg'
+    photo_path = f'{image_dir}/{username}.jpg'
     data = request.get_data()
-    with open(fn, 'wb') as f:
+    with open(photo_path, 'wb') as f:
         f.write(data)
-    encoding = generateEncoding(data)
+    encoding = generateEncoding(photo_path)
     r = identify_face(username, encoding)
     return checkStatus(r)
 
@@ -201,6 +199,8 @@ if __name__ == "__main__":
 
 @app.route("/loginface")
 def login_face():
+    if current_user.is_authenticated:
+        return redirect(url_for("index"))
     return """
     <html>
     <head>
