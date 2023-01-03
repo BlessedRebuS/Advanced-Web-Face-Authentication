@@ -23,6 +23,13 @@ def decript_message(public_key, encrypted_text):
     print("Decrypted text: ", result)
     return(result)
 
+# check if the received encoding is valid
+def checkEncodings(saved_encoding, received_encoding):
+        if(saved_encoding == received_encoding):
+                return True
+        else:
+                return False
+
 @app.route('/server', methods=['GET', 'POST'])
 def handle():
         # rsa_private_key = RSA.importKey(open('key.pem', "rb").read())
@@ -31,12 +38,19 @@ def handle():
         base64_BASE_URL = base64.b64encode(BASE_URL)
         data = base64_BASE_URL.decode("utf-8") +"|"+base64_public_key.decode("utf-8")
         headers = request.headers
-        signature = headers['signature']
-        if(signature == "sign"):
-                print(jsonify(data))
+        username = headers['username']
+        saved_encoding = headers['saved_encoding']
+        received_encoding = headers['received_encoding']
+        print("Ricevuta richiesta da: ", username)
+        if(saved_encoding == None):
                 return jsonify(data)
         else:
-                return "Signature non valida"
+                check = checkEncodings(saved_encoding, received_encoding)
+                if(check == True):
+                        print(jsonify(data))
+                        return jsonify(data)
+                else:
+                        return "Signature non valida"
 
 @app.route('/sign', methods=['GET', 'POST'])
 def prove():

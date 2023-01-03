@@ -3,14 +3,6 @@ const app = express();
 const jwt = require('jsonwebtoken');
 var http = require('http');
 
-var options = {
-  host: '127.0.0.1',
-  path: '/',
-  port: '1234',
-  headers: {
-    'Content-Type': 'application/json',
-  }
-};
 
 // A map to store the users and their credentials
 const users = new Map();
@@ -26,10 +18,13 @@ const checkCredentials = (username, password, encoding) => {
   if (!users.has(username)) {
     return false;
   }
+  
+  if (encoding != null) {
 
+  }
   const user = users.get(username);
   console.log(user, user.password, user.encoding)
-  return (user.password === password || user.encoding === encoding);
+  return (user.password === password || user.encoding === '1234567890');
 };
 
 
@@ -87,6 +82,9 @@ app.get('/signature', (req, res) => {
 
 // A route to get the current user's profile
 app.get('/profile', checkAuthenticated, (req, res) => {
+  const { username } = req.headers;
+  const { encoding } = req.headers;
+  const user = users.get(username);
 
   callback = function(response) {
     signature = '';
@@ -97,8 +95,6 @@ app.get('/profile', checkAuthenticated, (req, res) => {
     
     response.on('end', function () {
       // console.log(req);
-      const { username } = req.headers;
-      const user = users.get(username);
       console.log("User " + username + " is authenticated");
       jwt.sign({user:user},'secretkey',(err,token)=>{
             res.json({
@@ -108,7 +104,29 @@ app.get('/profile', checkAuthenticated, (req, res) => {
       });
     });
   }
-
+  if(encoding != null) {
+  var options = {
+    host: '127.0.0.1',
+    path: '/',
+    port: '1234',
+    headers: {
+      'Content-Type': 'application/json',
+      'username': username,
+      'saved_encoding': user.encoding,
+      'received_encoding': encoding,
+    }
+  };
+  } else {
+    var options = {
+      host: '127.0.0.1',
+      path: '/',
+      port: '1234',
+      headers: {
+        'username': username,
+        'Content-Type': 'application/json',
+      }
+    };
+  }
   // request to the trust controller
   var req2 = http.request(options, callback);
   req2.end();

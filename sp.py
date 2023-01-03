@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for, jsonify
+from flask import Flask, request, redirect, url_for
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 import requests
 import json
@@ -6,12 +6,8 @@ import base64
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from flask_cors import CORS
-from time import time_ns
 import face_recognition
-import cv2
-import numpy as np
-import sys
-from datetime import datetime
+
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
@@ -144,12 +140,12 @@ def checkStatus(r):
     return 'Unauthorized: Invalid credentials', 401
 
 def generateEncoding(photo_path):
-
     #load the user image and get the face encoding
     user_image = face_recognition.load_image_file(photo_path)
     user_face_encoding = face_recognition.face_encodings(user_image)[0]
-    print("encoding: " +str(user_face_encoding))
-    return user_face_encoding
+    base64_face_encoding = (base64.b64encode(user_face_encoding).decode("ascii"))
+    print(base64_face_encoding)
+    return base64_face_encoding
   #return "1234567890"
 
 @app.route("/loginpassword", methods=["GET", "POST"])
