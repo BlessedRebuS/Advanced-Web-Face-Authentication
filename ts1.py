@@ -2,6 +2,12 @@ from flask import Flask, request, jsonify
 import base64
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
+from time import time_ns
+import face_recognition
+import cv2
+import numpy as np
+import sys
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -25,7 +31,10 @@ def decript_message(public_key, encrypted_text):
 
 # check if the received encoding is valid
 def checkEncodings(saved_encoding, received_encoding):
-        if(saved_encoding == received_encoding):
+        saved_encodings = [saved_encoding]
+        matches = face_recognition.compare_faces(saved_encodings, received_encoding)
+        print("matches: " + len(matches))
+        if(matches):
                 return True
         else:
                 return False

@@ -25,7 +25,10 @@ def decript_message(public_key, encrypted_text):
 
 # check if the received encoding is valid
 def checkEncodings(saved_encoding, received_encoding):
-        if(saved_encoding == received_encoding):
+        saved_encodings = [saved_encoding]
+        matches = face_recognition.compare_faces(saved_encodings, received_encoding)
+        print("matches: " + len(matches))
+        if(matches):
                 return True
         else:
                 return False
