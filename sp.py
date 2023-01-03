@@ -7,7 +7,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from flask_cors import CORS
 import face_recognition
-
+import numpy
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
@@ -143,10 +143,13 @@ def generateEncoding(photo_path):
     #load the user image and get the face encoding
     user_image = face_recognition.load_image_file(photo_path)
     user_face_encoding = face_recognition.face_encodings(user_image)[0]
-    base64_face_encoding = (base64.b64encode(user_face_encoding).decode("ascii"))
-    print(base64_face_encoding)
-    return base64_face_encoding
-  #return "1234567890"
+    # print("Original face encoding: "+str(user_face_encoding))
+    #base64_face_encoding = (base64.b64encode(user_face_encoding).decode("ascii"))
+    encoded_array = numpy.array2string(user_face_encoding, separator=' ')
+    base64_encoded_array = base64.b64encode(encoded_array.encode("ascii"))
+
+    print("Encoded face encoding: "+base64_encoded_array.decode("ascii"))
+    return base64_encoded_array.decode("ascii")
 
 @app.route("/loginpassword", methods=["GET", "POST"])
 def login_password():

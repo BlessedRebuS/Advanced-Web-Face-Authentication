@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import base64
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
+import face_recognition
 
 app = Flask(__name__)
 

@@ -2,12 +2,8 @@ from flask import Flask, request, jsonify
 import base64
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-from time import time_ns
 import face_recognition
-import cv2
-import numpy as np
-import sys
-from datetime import datetime
+import numpy 
 
 app = Flask(__name__)
 
@@ -31,9 +27,16 @@ def decript_message(public_key, encrypted_text):
 
 # check if the received encoding is valid
 def checkEncodings(saved_encoding, received_encoding):
-        saved_encodings = [saved_encoding]
-        matches = face_recognition.compare_faces(saved_encodings, received_encoding)
-        print("matches: " + len(matches))
+        base64decoded_saved_encoding = base64.b64decode(saved_encoding).decode("utf-8")
+        base64decoded_received_encoding = base64.b64decode(received_encoding).decode("utf-8")
+        saved_encoding_to_array = numpy.fromstring(base64decoded_saved_encoding.strip('[]'),dtype=float, sep = ' ')
+        received_encoding_to_array = numpy.fromstring(base64decoded_received_encoding.strip('[]'),dtype=float, sep = ' ')
+        #print(f"Received encoding: {str(received_encoding_to_array)}")
+        #print(f"Saved encoding: {str(saved_encoding_to_array)}")
+
+        saved_encoding_to_array = [saved_encoding_to_array]
+        matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.4)
+        print("matches: " + str(len(matches)))
         if(matches):
                 return True
         else:
@@ -51,6 +54,7 @@ def handle():
         saved_encoding = headers['saved_encoding']
         received_encoding = headers['received_encoding']
         print("Ricevuta richiesta da: ", username)
+        print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
         if(saved_encoding == None):
                 return jsonify(data)
         else:
