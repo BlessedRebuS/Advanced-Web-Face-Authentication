@@ -32,13 +32,12 @@ def checkEncodings(saved_encoding, received_encoding):
         saved_encoding_to_array = numpy.fromstring(base64decoded_saved_encoding.strip('[]'),dtype=float, sep = ' ')
         received_encoding_to_array = numpy.fromstring(base64decoded_received_encoding.strip('[]'),dtype=float, sep = ' ')
 
-        print(f"Received encoding: {str(received_encoding_to_array)}")
-        print(f"Saved encoding: {str(saved_encoding_to_array)}")
+        #print(f"Received encoding: {str(received_encoding_to_array)}")
+        #print(f"Saved encoding: {str(saved_encoding_to_array)}")
 
         saved_encoding_to_array = [saved_encoding_to_array]
-        matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.001)
-        print("matches: " + str(len(matches)))
-        if(matches):
+        matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.4)
+        if(matches is True):
                 return True
         else:
                 return False
@@ -61,11 +60,12 @@ def handle():
                 return jsonify(data)
         else:
                 check = checkEncodings(saved_encoding, received_encoding)
+                print(f"Check: {check}")
                 if(check == True):
                         print(jsonify(data))
                         return jsonify(data)
                 else:
-                        return "Signature non valida"
+                        return jsonify("Signature non valida")
 
 @app.route('/sign', methods=['GET', 'POST'])
 def prove():

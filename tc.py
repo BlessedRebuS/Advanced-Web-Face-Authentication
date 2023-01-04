@@ -35,7 +35,7 @@ def handle():
             print(f"Error in server {server}")
             continue
         if r.status_code == 200:
-            # print(r.json())
+            print(r.text)
             print(f"Server {server} is working")
             result.append(r.json())
         else:
