@@ -31,11 +31,12 @@ def checkEncodings(saved_encoding, received_encoding):
         base64decoded_received_encoding = base64.b64decode(received_encoding).decode("utf-8")
         saved_encoding_to_array = numpy.fromstring(base64decoded_saved_encoding.strip('[]'),dtype=float, sep = ' ')
         received_encoding_to_array = numpy.fromstring(base64decoded_received_encoding.strip('[]'),dtype=float, sep = ' ')
-        #print(f"Received encoding: {str(received_encoding_to_array)}")
-        #print(f"Saved encoding: {str(saved_encoding_to_array)}")
+
+        print(f"Received encoding: {str(received_encoding_to_array)}")
+        print(f"Saved encoding: {str(saved_encoding_to_array)}")
 
         saved_encoding_to_array = [saved_encoding_to_array]
-        matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.4)
+        matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.6)
         print("matches: " + str(len(matches)))
         if(matches):
                 return True
@@ -53,8 +54,8 @@ def handle():
         username = headers['username']
         saved_encoding = headers['saved_encoding']
         received_encoding = headers['received_encoding']
-        print("Ricevuta richiesta da: ", username)
-        print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
+        # print("Ricevuta richiesta da: ", username)
+        # print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
         if(saved_encoding == None):
                 return jsonify(data)
         else:

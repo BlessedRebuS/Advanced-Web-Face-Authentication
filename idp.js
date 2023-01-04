@@ -82,8 +82,10 @@ app.get('/signature', (req, res) => {
 
 // A route to get the current user's profile
 app.get('/profile', checkAuthenticated, (req, res) => {
+  console.log(JSON.stringify(req.headers));
   const { username } = req.headers;
   const { encoding } = req.headers;
+  console.log("Encoding received: "+ encoding + " for user " + username);
   const user = users.get(username);
 
   callback = function(response) {
@@ -105,7 +107,7 @@ app.get('/profile', checkAuthenticated, (req, res) => {
     });
   }
   if(encoding != null) {
-  console.log("Encoding: " + encoding, "Saved Encoding: " + user.encoding)
+  //console.log("Encoding: " + encoding, "Saved Encoding: " + user.encoding)
   var options = {
     host: '127.0.0.1',
     path: '/',
@@ -114,7 +116,7 @@ app.get('/profile', checkAuthenticated, (req, res) => {
       'Content-Type': 'application/json',
       'username': username,
       'saved_encoding': user.encoding,
-      'received_encoding': encoding,
+      'received_encoding': encoding
     }
   };
   } else {
@@ -124,7 +126,7 @@ app.get('/profile', checkAuthenticated, (req, res) => {
       port: '1234',
       headers: {
         'username': username,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       }
     };
   }
