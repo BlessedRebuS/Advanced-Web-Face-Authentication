@@ -62,7 +62,6 @@ def handle():
                 return jsonify(data)
         else:
                 check = checkEncodings(saved_encoding, received_encoding)
-                print(f"Check: {check}")
                 if(check == True):
                         print(jsonify(data))
                         return jsonify(data)
