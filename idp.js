@@ -82,10 +82,8 @@ app.get('/signature', (req, res) => {
 
 // A route to get the current user's profile
 app.get('/profile', checkAuthenticated, (req, res) => {
-  console.log(JSON.stringify(req.headers));
   const { username } = req.headers;
   const { encoding } = req.headers;
-  console.log("Encoding received: "+ encoding + " for user " + username);
   const user = users.get(username);
 
   callback = function(response) {

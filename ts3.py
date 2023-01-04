@@ -3,6 +3,7 @@ import base64
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 import face_recognition
+import numpy 
 
 app = Flask(__name__)
 
@@ -26,9 +27,17 @@ def decript_message(public_key, encrypted_text):
 
 # check if the received encoding is valid
 def checkEncodings(saved_encoding, received_encoding):
-        saved_encodings = [saved_encoding]
-        matches = face_recognition.compare_faces(saved_encodings, received_encoding)
-        print("matches: " + len(matches))
+        base64decoded_saved_encoding = base64.b64decode(saved_encoding).decode("utf-8")
+        base64decoded_received_encoding = base64.b64decode(received_encoding).decode("utf-8")
+        saved_encoding_to_array = numpy.fromstring(base64decoded_saved_encoding.strip('[]'),dtype=float, sep = ' ')
+        received_encoding_to_array = numpy.fromstring(base64decoded_received_encoding.strip('[]'),dtype=float, sep = ' ')
+
+        print(f"Received encoding: {str(received_encoding_to_array)}")
+        print(f"Saved encoding: {str(saved_encoding_to_array)}")
+
+        saved_encoding_to_array = [saved_encoding_to_array]
+        matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.001)
+        print("matches: " + str(len(matches)))
         if(matches):
                 return True
         else:
@@ -40,12 +49,14 @@ def handle():
         # encrypted_text = rsa_private_key.encrypt(b'test')
         base64_public_key = base64.b64encode(public_key)
         base64_BASE_URL = base64.b64encode(BASE_URL)
-        data = base64_BASE_URL.decode("utf-8") +"|"+base64_public_key.decode("utf-8")
         headers = request.headers
         username = headers['username']
         saved_encoding = headers['saved_encoding']
         received_encoding = headers['received_encoding']
-        print("Ricevuta richiesta da: ", username)
+        data = base64_BASE_URL.decode("utf-8") +"|"+base64_public_key.decode("utf-8")+"|"+username
+
+        # print("Ricevuta richiesta da: ", username)
+        # print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
         if(saved_encoding == None):
                 return jsonify(data)
         else:

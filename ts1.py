@@ -36,7 +36,7 @@ def checkEncodings(saved_encoding, received_encoding):
         print(f"Saved encoding: {str(saved_encoding_to_array)}")
 
         saved_encoding_to_array = [saved_encoding_to_array]
-        matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.6)
+        matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.001)
         print("matches: " + str(len(matches)))
         if(matches):
                 return True
@@ -49,11 +49,12 @@ def handle():
         # encrypted_text = rsa_private_key.encrypt(b'test')
         base64_public_key = base64.b64encode(public_key)
         base64_BASE_URL = base64.b64encode(BASE_URL)
-        data = base64_BASE_URL.decode("utf-8") +"|"+base64_public_key.decode("utf-8")
         headers = request.headers
         username = headers['username']
         saved_encoding = headers['saved_encoding']
         received_encoding = headers['received_encoding']
+        data = base64_BASE_URL.decode("utf-8") +"|"+base64_public_key.decode("utf-8")+"|"+username
+
         # print("Ricevuta richiesta da: ", username)
         # print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
         if(saved_encoding == None):

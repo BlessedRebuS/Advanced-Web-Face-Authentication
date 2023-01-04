@@ -8,11 +8,12 @@ from Crypto.PublicKey import RSA
 from flask_cors import CORS
 import face_recognition
 import numpy
+import os 
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
 THRESHOLD = 2
-SECRET = b'test'
+SECRET = app.secret_key.encode()
 server_names = []
 indexContent = ""
 
@@ -76,9 +77,12 @@ def parser(status_string, response, thresold):
       for i in server_urls:
           server_url = base64.b64decode(i.split("|")[0]).decode("utf-8")
           server_key = base64.b64decode(i.split("|")[1]).decode("utf-8")
+          username = i.split("|")[2]
           if server_url in server_names:
               result.append('<table style="border:2px solid black;">'+ '<tr>' + '<th>' + server_url + '</th>' + '<th>' + '<textarea readonly style="border:double 2px green;" id="print_key" name="key" rows="10" cols="50">' + server_key + '</textarea>' + '</th>' + '</tr>' + '</table>')
-      indexContent = "<br>".join(result)
+      headerUsername = '<h2>Username: '+username+'</h2>'
+      indexContent = headerUsername
+      indexContent += "<br>".join(result)
       return
 
 def checkSign(signature, threshold=2):
@@ -125,7 +129,7 @@ def checkSign(signature, threshold=2):
 
 def checkStatus(r):
   if r.status_code == 200:
-    print("Token: ", r.json()['token'])
+    # print("Token: ", r.json()['token'])
     # check the signature
     if(checkSign(r.json()['signature'], THRESHOLD)):
         u = User(r.json())
@@ -140,15 +144,15 @@ def checkStatus(r):
     return 'Unauthorized: Invalid credentials', 401
 
 def generateEncoding(photo_path):
-    #load the user image and get the face encoding
+    # load the user image and get the face encoding
     user_image = face_recognition.load_image_file(photo_path)
     user_face_encoding = face_recognition.face_encodings(user_image)[0]
     # print("Original face encoding: "+str(user_face_encoding))
-    #base64_face_encoding = (base64.b64encode(user_face_encoding).decode("ascii"))
+    # base64_face_encoding = (base64.b64encode(user_face_encoding).decode("ascii"))
     encoded_array = numpy.array2string(user_face_encoding, separator=' ')
     base64_encoded_array = base64.b64encode(encoded_array.encode("ascii"))
 
-    print("Encoded face encoding: "+base64_encoded_array.decode("ascii"))
+    #print("Encoded face encoding: "+base64_encoded_array.decode("ascii"))
     return base64_encoded_array.decode("ascii")
 
 @app.route("/loginpassword", methods=["GET", "POST"])
@@ -183,6 +187,7 @@ def face_send():
         f.write(data)
     encoding = generateEncoding(photo_path)
     r = identify_face(username, encoding)
+    os.remove(photo_path)
     return checkStatus(r)
 
 @app.route("/logout")
