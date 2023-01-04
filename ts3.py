@@ -37,7 +37,8 @@ def checkEncodings(saved_encoding, received_encoding):
 
         saved_encoding_to_array = [saved_encoding_to_array]
         matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.6)
-        if(matches is True):
+
+        if(matches[0]):
                 return True
         else:
                 return False
@@ -56,11 +57,11 @@ def handle():
 
         # print("Ricevuta richiesta da: ", username)
         # print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
-        if(saved_encoding == None):
+        if(saved_encoding is None):
                 return jsonify(data)
         else:
                 check = checkEncodings(saved_encoding, received_encoding)
-                if(check == True):
+                if(check is True):
                         print(jsonify(data))
                         return jsonify(data)
                 else:
