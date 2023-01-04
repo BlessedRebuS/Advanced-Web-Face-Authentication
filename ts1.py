@@ -36,7 +36,9 @@ def checkEncodings(saved_encoding, received_encoding):
         #print(f"Saved encoding: {str(saved_encoding_to_array)}")
 
         saved_encoding_to_array = [saved_encoding_to_array]
-        matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.4)
+        matches = face_recognition.compare_faces(saved_encoding_to_array, received_encoding_to_array, tolerance=0.001)
+        print("# matches: " + str(len(matches)))
+        print("matches: " + str(matches))
         if(matches is True):
                 return True
         else:
