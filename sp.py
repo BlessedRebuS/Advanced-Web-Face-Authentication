@@ -38,7 +38,7 @@ def identify_password(username, password):
     f'{IDP_BASE_URL}/profile',
     headers={
       'username': username,
-      'password': password
+      'password': password,
     }
   )
   return r
@@ -48,7 +48,8 @@ def identify_face(username, encoding):
     f'{IDP_BASE_URL}/profile',
     headers={
       'username': username,
-      'encoding': encoding
+      'encoding': encoding,
+      'threshold': str(THRESHOLD)
     }
     )
     print(str(r))
@@ -90,36 +91,42 @@ def checkSign(signature, threshold=2):
     global server_names
     signatureList = json.loads(signature)
     for i in signatureList:
-        base64_key = (i.split("|")[1])
-        encrypted_message = encrypt_message(base64_key, SECRET)
+        first_param = (i.split("|")[1])
         server_url = base64.b64decode(i.split("|")[0]).decode("utf-8")
-        try:
-            r = requests.get(
-                f'{server_url+"/sign"}',
-                headers={
-                'message': encrypted_message
-                }
-            )
-        except:
-            print(f"Error, signature from {server_url} NOT received")
-            if(server_url in server_names):
-                server_names.remove(server_url)
-            continue
-        if r.status_code == 200:
-            key = r.text
-            print("Received key: ", key)
-            if(key == SECRET.decode("utf-8")):
-                print(f"Signature from {server_url} received")
-                if(server_url not in server_names):
-                    server_names.append(server_url)
-            else:
+        if(first_param != "ERR"):
+            base64_key = (i.split("|")[1])
+            encrypted_message = encrypt_message(base64_key, SECRET)
+            try:
+                r = requests.get(
+                    f'{server_url+"/sign"}',
+                    headers={
+                    'message': encrypted_message
+                    }
+                )
+            except:
                 print(f"Error, signature from {server_url} NOT received")
                 if(server_url in server_names):
                     server_names.remove(server_url)
+                continue
+
+
+            if r.status_code == 200:
+                key = r.text
+                print("Received key: ", key)
+                if(key == SECRET.decode("utf-8")):
+                    print(f"Signature from {server_url} received")
+                    if(server_url not in server_names):
+                        server_names.append(server_url)
+                else:
+                    print(f"Error, signature from {server_url} NOT received")
+                    if(server_url in server_names):
+                        server_names.remove(server_url)
+            else:
+                print(f"Error, server {server_url} is not working")
+                if(server_url in server_names):
+                    server_names.remove(server_url)
         else:
-            print(f"Error, server {server_url} is not working")
-            if(server_url in server_names):
-                server_names.remove(server_url)
+                print(f"Error, signature from {server_url} NOT received")
     print(f"Server signed: {(server_names)}")
 
     if(len(server_names) >= threshold):
