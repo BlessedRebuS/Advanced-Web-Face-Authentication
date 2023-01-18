@@ -43,6 +43,7 @@ def identify_password(username, password):
   )
   return r
 
+#send request to check if attempt face matches with user known face
 def identify_face(username, encoding):
     r = requests.get(
     f'{IDP_BASE_URL}/profile',
@@ -184,6 +185,7 @@ def login_password():
         </form>
     """
 
+#send request to check if attempt face match with known user face
 @app.route("/facesend", methods=["GET", "POST"])
 def face_send():
     image_dir = 'images'
@@ -197,6 +199,7 @@ def face_send():
     os.remove(photo_path)
     return checkStatus(r)
 
+#logout and destroy session
 @app.route("/logout")
 def logout():
     global server_names
@@ -204,6 +207,7 @@ def logout():
     logout_user()
     return "User logged out"
 
+#user home page (only visible when logged in)
 @app.route("/")
 @login_required
 def index():
@@ -219,6 +223,7 @@ if __name__ == "__main__":
     })
     app.run()
 
+#return login page with face sending
 @app.route("/loginface")
 def login_face():
     if current_user.is_authenticated:
