@@ -80,10 +80,12 @@ def parser(status_string, response, thresold):
           server_url = base64.b64decode(i.split("|")[0]).decode("utf-8")
           server_key = base64.b64decode(i.split("|")[1]).decode("utf-8")
           username = i.split("|")[2]
+          jwt_token = i.split("|")[3]
           if server_url in server_names:
               result.append('<table style="border:2px solid black;">'+ '<tr>' + '<th>' + server_url + '</th>' + '<th>' + '<textarea readonly style="border:double 2px green;" id="print_key" name="key" rows="10" cols="50">' + server_key + '</textarea>' + '</th>' + '</tr>' + '</table>')
-      headerUsername = '<h2>Username: '+username+'</h2>'
-      indexContent = headerUsername
+      headerUsername = '<h3>Username: ' + username+'</h3>'
+      headerToken = '<h3> JWT Token: </h3>' + jwt_token
+      indexContent = headerUsername + headerToken
       indexContent += "<br>".join(result)
       return
 
@@ -157,6 +159,7 @@ def generateEncoding(photo_path):
     user_face_encoding = face_recognition.face_encodings(user_image)[0]
     # print("Original face encoding: "+str(user_face_encoding))
     # base64_face_encoding = (base64.b64encode(user_face_encoding).decode("ascii"))
+    print("Encoding: "+str(user_face_encoding))
     encoded_array = numpy.array2string(user_face_encoding, separator=' ')
     base64_encoded_array = base64.b64encode(encoded_array.encode("ascii"))
 
@@ -214,11 +217,13 @@ def index():
     global indexContent
     return "<h1>Home Page</h1>" + indexContent
 
+# run with 127.0.0.1 because CORS works only with this address
 if __name__ == "__main__":
     CORS(app)
     cors = CORS(app, resource={
         r"/*":{
-            "origins":"*"
+            "origins":"*",
+            "Access-Control-Allow-Origin:": "*"
         }
     })
     app.run()
