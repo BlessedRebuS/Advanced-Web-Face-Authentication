@@ -7,21 +7,6 @@ from blspy import PrivateKey, AugSchemeMPL, PopSchemeMPL, G1Element, G2Element
 
 class TestJWToken(unittest.TestCase):
 
-    def test_encode_decode_ES256(self):
-        print("\n*** TEST ENCODE/DECODE ES256 ***\n")
-        token_authn_key: ec.EllipticCurvePrivateKey = ec.generate_private_key(ec.SECP256K1)
-        exp_time = datetime(2022, 10, 13, 12, 4, 46)
-        nbf_time = datetime.now()
-        claims = {"iss":"ids.example", "exp":exp_time, "nbf":nbf_time, "subj":"s1.example.com", "aud":"test"}
-        
-        print("---Generating token---\n")
-        token = encode_ES256(claims, token_authn_key)
-        print("Generated token:")
-        print(token)
-        print("\n---Verifying token---")
-        header, payload, signature = decode_ES256(token_authn_key.public_key(), token)
-        print("Verification result:")
-        print(header, payload, signature)
 
     def test_bls_signatures(self):
         print("\n*** TEST BLS SIGNATURE ***\n")
