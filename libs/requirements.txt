@@ -1,0 +1,2 @@
+cryptography==35.0.0
+blspy==1.0.6
