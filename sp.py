@@ -65,12 +65,12 @@ def user_loader(user_id):
     user = User(user_id)
     return user
 
-def encrypt_message(base64_public_key, message):
-    public_key = base64.b64decode(base64_public_key)
-    rsa_public_key = RSA.importKey(public_key)
-    rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
-    encrypted_text = rsa_public_key.encrypt(message)
-    return base64.b64encode(encrypted_text)
+# def encrypt_message(base64_public_key, message):
+#     public_key = base64.b64decode(base64_public_key)
+#     rsa_public_key = RSA.importKey(public_key)
+#     rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
+#     encrypted_text = rsa_public_key.encrypt(message)
+#     return base64.b64encode(encrypted_text)
 
 def parser(status_string, response, thresold):
     global indexContent
@@ -148,8 +148,11 @@ def checkSign(signature, threshold=2):
         first_param = (i.split("|")[1])
         server_url = base64.b64decode(i.split("|")[0]).decode("utf-8")
         if(first_param != "ERR"):
-            base64_key = (i.split("|")[1])
-            encrypted_message = encrypt_message(base64_key, SECRET)
+            base64_token = (i.split("|")[1])
+            decoded_token = base64.b64decode(base64_token).decode("utf-8")
+            base64_pop = (i.split("|")[2])
+            decoded_pop = base64.b64decode(base64_pop).decode("utf-8")
+            print(f"Received Token: {decoded_token}, Pop: {decoded_pop}")
             try:
                 r = requests.get(
                     f'{server_url+"/sign"}',
@@ -160,11 +163,16 @@ def checkSign(signature, threshold=2):
                     server_names.remove(server_url)
                 continue
 
-
+            print(r.status_code)
             if r.status_code == 200:
-                key = r.text
-                print("Received key: ", key)
+                pk = r.text
+                print("Received key: ", pk)  
+                pop_sig = []
+                pop_sig.append(decoded_token)
+                res = PopSchemeMPL.pop_verify(pk, pop)
+                print("Result: ", sig)
                 if(True):
+                    
                     print(f"Signature from {server_url} received")
                     if(server_url not in server_names):
                         server_names.append(server_url)

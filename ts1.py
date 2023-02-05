@@ -7,8 +7,8 @@ import numpy
 from jwtoken import bls_signature
 from datetime import datetime
 from cryptography.hazmat.primitives.asymmetric import ec
-from blspy import PrivateKey, AugSchemeMPL, G1Element
-
+from blspy import (PrivateKey, Util, AugSchemeMPL, PopSchemeMPL,
+                   G1Element, G2Element)
 app = Flask(__name__)
 private_bls_key = None
 
@@ -53,12 +53,17 @@ def generate_sk():
                         19, 18, 12, 89,  6,   220, 18, 102, 58,  209, 82,
                         12, 62, 89, 110, 182, 9,   44, 20,  254, 22])
     seed = bytes([1]) + seed[1:]
-    sk1: PrivateKey = AugSchemeMPL.key_gen(seed)
-    return sk1
+    sk = PopSchemeMPL.key_gen(seed)
+    #sk1: PrivateKey = AugSchemeMPL.key_gen(seed)
+    return sk
 
 def generate_pk(sk):
         pk1: G1Element = sk.get_g1()
         return pk1
+
+def pop_prove(sk):
+        pop: G2Element = PopSchemeMPL.pop_prove(sk)
+        return pop
 
 def bls_token(username, received_encoding):
     global private_bls_key
@@ -68,6 +73,7 @@ def bls_token(username, received_encoding):
     nbf_time = datetime.now()        
     claims = {"username": username, "received_encoding": received_encoding[:10], "exp":exp_time, "nbf":nbf_time}   
     token = bls_signature(claims, private_bls_key)
+    print(f"Generated token: {token}")
     return token
 
 @app.route('/server', methods=['GET', 'POST'])
@@ -83,7 +89,10 @@ def handle():
         received_encoding = headers['received_encoding']
         token = bls_token(username, received_encoding)
         base64_token = base64.b64encode(token)
-        data = base64_BASE_URL.decode("utf-8") +"|"+base64_token.decode("utf-8")+"|"+username
+        pop = pop_prove(private_bls_key)
+        print("Pop: ", pop)
+        base64_pop = base64.b64encode(str(pop).encode())
+        data = base64_BASE_URL.decode("utf-8") +"|"+base64_token.decode("utf-8")+"|"+base64_pop.decode("utf-8")+"|"+username
 
         # print("Ricevuta richiesta da: ", username)
         # print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
@@ -100,7 +109,10 @@ def handle():
 
 @app.route('/sign', methods=['GET', 'POST'])
 def prove():
-        return generate_pk(private_bls_key)
+    global private_bls_key
+    pk = generate_pk(private_bls_key)
+    print("Public key: ", pk)
+    return str(pk)
 
 if __name__ == "__main__":
     app.run()
