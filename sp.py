@@ -152,6 +152,7 @@ def checkSign(signature, threshold=2):
             decoded_token = base64.b64decode(base64_token).decode("utf-8")
             base64_pop = (i.split("|")[2])
             decoded_pop = base64.b64decode(base64_pop).decode("utf-8")
+            print("Byte pop: ", decoded_pop.encode())
             print(f"Received Token: {decoded_token}, Pop: {decoded_pop}")
             try:
                 r = requests.get(
@@ -169,7 +170,8 @@ def checkSign(signature, threshold=2):
                 print("Received key: ", pk)  
                 pop_sig = []
                 pop_sig.append(decoded_token)
-                res = PopSchemeMPL.pop_verify(pk, pop)
+                pop_bytes = bytes(decoded_pop.encode())
+                res = PopSchemeMPL.pop_verify(pk, G2Element.from_bytes(pop_bytes))
                 print("Result: ", sig)
                 if(True):
                     
