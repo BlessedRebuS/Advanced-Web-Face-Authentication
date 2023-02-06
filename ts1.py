@@ -17,17 +17,6 @@ with open('public.pem', 'rb') as f:
 
 BASE_URL = b'http://127.0.0.1:5000'
 
-def decript_message(public_key, encrypted_text):
-    rsa_private_key = RSA.importKey(open('key.pem', "rb").read())
-    rsa_public_key = RSA.importKey(public_key)
-    rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
-    # print('debug encrypted text: {}'.format(encrypted_text))
-
-    rsa_private_key = PKCS1_OAEP.new(rsa_private_key)
-    decrypted_text = rsa_private_key.decrypt(encrypted_text)
-    result = (decrypted_text)
-    print("Decrypted text: ", result)
-    return(result)
 
 # check if the received encoding is valid
 def checkEncodings(saved_encoding, received_encoding):
@@ -57,13 +46,12 @@ def generate_sk():
     #sk1: PrivateKey = AugSchemeMPL.key_gen(seed)
     return sk
 
-def generate_pk(sk):
-        pk1: G1Element = sk.get_g1()
-        return pk1
-
-def pop_prove(sk):
-        pop: G2Element = PopSchemeMPL.pop_prove(sk)
-        return pop
+def generate_pk_pop(sk):
+        pk: G1Element = sk.get_g1()
+        pop = PopSchemeMPL.pop_prove(sk)
+        pk_base64_encoded = base64.urlsafe_b64encode(bytes(pk)).decode('utf-8')
+        pop_base64_encoded = base64.urlsafe_b64encode(bytes(pop)).decode('utf-8')
+        return pk_base64_encoded + "|" + pop_base64_encoded
 
 def bls_token(username, received_encoding):
     global private_bls_key
@@ -80,8 +68,6 @@ def bls_token(username, received_encoding):
 def handle():
         global private_bls_key
         private_bls_key = generate_sk()
-        # rsa_private_key = RSA.importKey(open('key.pem', "rb").read())
-        # encrypted_text = rsa_private_key.encrypt(b'test')
         base64_BASE_URL = base64.b64encode(BASE_URL)
         headers = request.headers
         username = headers['username']
@@ -89,13 +75,9 @@ def handle():
         received_encoding = headers['received_encoding']
         token = bls_token(username, received_encoding)
         base64_token = base64.b64encode(token)
-        pop = pop_prove(private_bls_key)
-        print("Pop: ", pop)
-        base64_pop = base64.b64encode(str(pop).encode())
-        data = base64_BASE_URL.decode("utf-8") +"|"+base64_token.decode("utf-8")+"|"+base64_pop.decode("utf-8")+"|"+username
-
-        # print("Ricevuta richiesta da: ", username)
-        # print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
+        data = base64_BASE_URL.decode("utf-8") +"|"+base64_token.decode("utf-8")+"|"+generate_pk_pop(private_bls_key)+"|"+username
+        print("Data: ", data)
+        
         if(saved_encoding is None):
                 return jsonify(data)
         else:
@@ -110,9 +92,9 @@ def handle():
 @app.route('/sign', methods=['GET', 'POST'])
 def prove():
     global private_bls_key
-    pk = generate_pk(private_bls_key)
-    print("Public key: ", pk)
-    return str(pk)
+    pk_pop = generate_pk_pop(private_bls_key)
+    print("Public key and pop ", pk_pop)
+    return str(pk_pop)
 
 if __name__ == "__main__":
     app.run()

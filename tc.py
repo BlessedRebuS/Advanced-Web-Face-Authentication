@@ -1,9 +1,13 @@
 from flask import Flask, jsonify, request
 import requests
-
+import base64
+from blspy import (PrivateKey, Util, AugSchemeMPL, PopSchemeMPL,
+                   G1Element, G2Element)
+from jwtoken import base64url_decode, aggregate_signature
 
 app = Flask(__name__)
 server_list = ["http://127.0.0.1:5000", "http://127.0.0.1:6000", "http://127.0.0.1:7000"]
+
 
 @app.route('/' , methods=['GET', 'POST'])
 def handle():
@@ -11,7 +15,8 @@ def handle():
     username = request.headers.get('username')
     received_encoding = request.headers.get('received_encoding')
     saved_encoding = request.headers.get('saved_encoding')
-    # print(f"Received with encoding {encoding}, saved_encoding: {saved_encoding}")
+    verification_results = []
+    pop_sig = []
 
     result = []
     for server in server_list:
@@ -37,10 +42,26 @@ def handle():
             continue
         if r.status_code == 200:
             print(f"Server {server} is working")
+            token_encoded = r.json().split("|")[1]
+            pk_encoded = r.json().split("|")[2]
+            pop_encoded = r.json().split("|")[3]
+            token = base64url_decode(token_encoded)
+            token_bytes = bytes(token)
+            pk = G1Element.from_bytes(base64url_decode(pk_encoded))
+            pop = G2Element.from_bytes(base64url_decode(pop_encoded))
+            print(f"Received pk: {pk} and pop: {pop}")
+            verification_results.append(PopSchemeMPL.pop_verify(pk, pop))
+            pop_sig.append(token_bytes)
+            print("Result signature: ", verification_results)
             result.append(r.json())
         else:
             print(f"Error in server {server}")
     print(f"Result: {(result)}")
+    if False in verification_results:
+        print("Proof of possession failed")
+    else:
+        signed_token = aggregate_signature(pop_sig)
+        print(f"Signed token: {signed_token}")
     return(jsonify(result))
 
 if __name__ == "__main__":

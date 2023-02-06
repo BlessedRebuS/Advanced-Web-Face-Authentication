@@ -3,22 +3,19 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, curren
 import requests
 import json
 import base64
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto.PublicKey import RSA
 from flask_cors import CORS
 import face_recognition
 import numpy
 import os 
-from jwtoken import bls_signature, aggregate_signature, verify_aggregate_signature
+from jwtoken import verify_aggregate_signature, base64url_decode
 from datetime import datetime
-from cryptography.hazmat.primitives.asymmetric import ec
 from blspy import PrivateKey, AugSchemeMPL, PopSchemeMPL, G1Element, G2Element
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
 THRESHOLD = 2
 SECRET = app.secret_key.encode()
-server_names = []
+valid_servers = []
 indexContent = ""
 
 # Setup Flask-Login
@@ -65,13 +62,6 @@ def user_loader(user_id):
     user = User(user_id)
     return user
 
-# def encrypt_message(base64_public_key, message):
-#     public_key = base64.b64decode(base64_public_key)
-#     rsa_public_key = RSA.importKey(public_key)
-#     rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
-#     encrypted_text = rsa_public_key.encrypt(message)
-#     return base64.b64encode(encrypted_text)
-
 def parser(status_string, response, thresold):
     global indexContent
     result = []
@@ -82,116 +72,66 @@ def parser(status_string, response, thresold):
     else: 
       for i in server_urls:
           server_url = base64.b64decode(i.split("|")[0]).decode("utf-8")
-          server_key = base64.b64decode(i.split("|")[1]).decode("utf-8")
-          username = i.split("|")[2]
-          jwt_token = i.split("|")[3]
-          if server_url in server_names:
-              result.append('<table style="border:2px solid black;">'+ '<tr>' + '<th>' + server_url + '</th>' + '<th>' + '<textarea readonly style="border:double 2px green;" id="print_key" name="key" rows="10" cols="50">' + server_key + '</textarea>' + '</th>' + '</tr>' + '</table>')
+          jwt_token = base64.b64decode(i.split("|")[1]).decode("utf-8")
+          base64_pk = i.split("|")[2]
+          base64_pop = i.split("|")[3]
+          pk = G1Element.from_bytes(base64url_decode(base64_pk))
+          pop = G2Element.from_bytes(base64url_decode(base64_pop))
+          username = i.split("|")[4]
+          if server_url in valid_servers:
+              result.append('<table style="border:2px solid black;">'+ '<tr>' + '<th>' + server_url + '</th>' + '<th>' + '<textarea readonly style="border:double 2px green;" id="print_key" name="key" rows="10" cols="50">' + "Public Key:\n" + str(pk) + "\n\nProof of Possession:\n" + str(pop) + '</textarea>' + '</th>' + '</tr>' + '</table>')
       headerUsername = '<h3>Username: ' + username+'</h3>'
       headerToken = '<h3> JWT Token: </h3>' + jwt_token
       indexContent = headerUsername + headerToken
       indexContent += "<br>".join(result)
       return
 
-def bls_token(username, received_encoding):
-    # print("\n*** TEST BLS SIGNATURE ***\n")
-    seed: bytes = bytes([0,  50, 6,  244, 24,  199, 1,  25,  52,  88,  192,
-                        19, 18, 12, 89,  6,   220, 18, 102, 58,  209, 82,
-                        12, 62, 89, 110, 182, 9,   44, 20,  254, 22])
-    exp_time = datetime(2022, 10, 13, 12, 4, 46)
-    nbf_time = datetime.now()        
-    claims = {"username": username, "received_encoding": received_encoding[:10], "exp":exp_time, "nbf":nbf_time}
-    # Generate some more private keys
-    seed = bytes([1]) + seed[1:]
-    sk1: PrivateKey = AugSchemeMPL.key_gen(seed)
-    seed = bytes([2]) + seed[1:]
-    sk2: PrivateKey = AugSchemeMPL.key_gen(seed)
-    seed = bytes([3]) + seed[1:]
-    sk3: PrivateKey = AugSchemeMPL.key_gen(seed)
-    
-    # Generate public keys
-    pk1: G1Element = sk1.get_g1()
-    pk2: G1Element = sk2.get_g1()
-    pk3: G1Element = sk3.get_g1()
-    # Obtain proofs of possession
-    pop_sig = []
-    pop_sig.append(bls_signature(claims, sk1))
-    pop_sig.append(bls_signature(claims, sk2))
-    pop_sig.append(bls_signature(claims, sk3))
-    pop1: G2Element = PopSchemeMPL.pop_prove(sk1)
-    pop2: G2Element = PopSchemeMPL.pop_prove(sk2)
-    pop3: G2Element = PopSchemeMPL.pop_prove(sk3)
-    # Verify proofs of possession
-    verification_results = []
-    verification_results.append(PopSchemeMPL.pop_verify(pk1, pop1))
-    verification_results.append(PopSchemeMPL.pop_verify(pk2, pop2))
-    verification_results.append(PopSchemeMPL.pop_verify(pk3, pop3))
-    
-    if False in verification_results:
-        return "Proof of possession failed"
-    # Aggregate signatures
-    # print("---Aggregating signatures---\n")
-    # print("Signature aggregation:")
-    signed_token = aggregate_signature(pop_sig)
-    # print(signed_token)
-    # Verify aggregate signature
-    # print("\n---Verifying signatures---\n")
-    # print("Verification result:")
-    # print(verify_aggregate_signature([pk1, pk2, pk3], signed_token))
-    return signed_token
-
-def checkSign(signature, threshold=2):
+def checkSign(signature):
     # cycle through the signature list
-    global server_names
+    global valid_servers
+    pk_list = []
+    valid_servers = []
+    valid = False
+    verified = False
     signatureList = json.loads(signature)
     for i in signatureList:
         first_param = (i.split("|")[1])
         server_url = base64.b64decode(i.split("|")[0]).decode("utf-8")
         if(first_param != "ERR"):
             base64_token = (i.split("|")[1])
-            decoded_token = base64.b64decode(base64_token).decode("utf-8")
-            base64_pop = (i.split("|")[2])
-            decoded_pop = base64.b64decode(base64_pop).decode("utf-8")
-            print("Byte pop: ", decoded_pop.encode())
-            print(f"Received Token: {decoded_token}, Pop: {decoded_pop}")
+            decoded_token = base64url_decode(base64_token)
+            #decoded_token = base64.b64decode(base64_token).decode("utf-8")
+            token_bytes = bytes(decoded_token)
+            print("Received token: ", decoded_token)
             try:
                 r = requests.get(
                     f'{server_url+"/sign"}',
                 )
             except:
                 print(f"Error, signature from {server_url} NOT received")
-                if(server_url in server_names):
-                    server_names.remove(server_url)
-                continue
 
             print(r.status_code)
             if r.status_code == 200:
-                pk = r.text
+                base64_pk = r.text.split("|")[0]
+                pk = G1Element.from_bytes(base64url_decode(base64_pk))
+                pk_list.append(pk)
                 print("Received key: ", pk)  
-                pop_sig = []
-                pop_sig.append(decoded_token)
-                pop_bytes = bytes(decoded_pop.encode())
-                res = PopSchemeMPL.pop_verify(pk, G2Element.from_bytes(pop_bytes))
-                print("Result: ", sig)
-                if(True):
-                    
-                    print(f"Signature from {server_url} received")
-                    if(server_url not in server_names):
-                        server_names.append(server_url)
-                else:
-                    print(f"Error, signature from {server_url} NOT received")
-                    if(server_url in server_names):
-                        server_names.remove(server_url)
+                valid_servers.append(server_url)
+                if(len(pk_list) == len(signatureList)):
+                    print(f"List of public keys: {pk_list}")
+                    verified = verify_aggregate_signature(pk_list, token_bytes)
+                    if(verified):  
+                        valid = True
+                    else:
+                        print(f"Error, signature from {server_url} NOT received")
             else:
                 print(f"Error, server {server_url} is not working")
-                if(server_url in server_names):
-                    server_names.remove(server_url)
+
         else:
                 print(f"Error, signature from {server_url} NOT received")
-    print(f"Server signed: {(server_names)}")
-
-    if(len(server_names) >= threshold):
-        print("Total servers: ", len(server_names))
+    print(f"Valid servers: {valid_servers}, valid: {valid}")
+    if(valid):
+        print("Total servers: ", len(valid_servers))
         return True
     return False
 
@@ -199,7 +139,7 @@ def checkStatus(r):
   if r.status_code == 200:
     # print("Token: ", r.json()['token'])
     # check the signature
-    if(checkSign(r.json()['signature'], THRESHOLD)):
+    if(checkSign(r.json()['signature'])):
         u = User(r.json())
         login_user(u)
         ok_string = "<h2>User logged in, signature servers:<h2>"
@@ -215,13 +155,9 @@ def generateEncoding(photo_path):
     # load the user image and get the face encoding
     user_image = face_recognition.load_image_file(photo_path)
     user_face_encoding = face_recognition.face_encodings(user_image)[0]
-    # print("Original face encoding: "+str(user_face_encoding))
-    # base64_face_encoding = (base64.b64encode(user_face_encoding).decode("ascii"))
     print("Encoding: "+str(user_face_encoding))
     encoded_array = numpy.array2string(user_face_encoding, separator=' ')
     base64_encoded_array = base64.b64encode(encoded_array.encode("ascii"))
-
-    #print("Encoded face encoding: "+base64_encoded_array.decode("ascii"))
     return base64_encoded_array.decode("ascii")
 
 @app.route("/loginpassword", methods=["GET", "POST"])
@@ -263,8 +199,8 @@ def face_send():
 #logout and destroy session
 @app.route("/logout")
 def logout():
-    global server_names
-    server_names.clear()
+    global valid_servers
+    valid_servers.clear()
     logout_user()
     return "User logged out"
 
@@ -432,207 +368,3 @@ def login_face():
         
     </body>
     </html>"""
-
-
-# @app.route("/scripts/webcam.js")
-# def getWebcamJS():
-#     return """(() => {
-#     // The width and height of the captured photo. We will set the
-#     // width to the value defined here, but the height will be
-#     // calculated based on the aspect ratio of the input stream.
-  
-#     const width = 320; // We will scale the photo width to this
-#     let height = 0; // This will be computed based on the input stream
-  
-#     // |streaming| indicates whether or not we're currently streaming
-#     // video from the camera. Obviously, we start at false.
-  
-#     let streaming = false;
-  
-#     // The various HTML elements we need to configure or control. These
-#     // will be set by the startup() function.
-  
-#     let video = null;
-#     let canvas = null;
-#     let photo = null;
-#     let startbutton = null;
-  
-#     function showViewLiveResultButton() {
-#       if (window.self !== window.top) {
-#         // Ensure that if our document is in a frame, we get the user
-#         // to first open it in its own tab or window. Otherwise, it
-#         // won't be able to request permission for camera access.
-#         document.querySelector(".contentarea").remove();
-#         const button = document.createElement("button");
-#         button.textContent = "View live result of the example code above";
-#         document.body.append(button);
-#         button.addEventListener("click", () => window.open(location.href));
-#         return true;
-#       }
-#       return false;
-#     }
-  
-#     function startup() {
-#       if (showViewLiveResultButton()) {
-#         return;
-#       }
-#       video = document.getElementById("video");
-#       canvas = document.getElementById("canvas");
-#       photo = document.getElementById("photo");
-#       startbutton = document.getElementById("startbutton");
-  
-#       navigator.mediaDevices
-#         .getUserMedia({ video: true, audio: false })
-#         .then((stream) => {
-#           video.srcObject = stream;
-#           video.play();
-#         })
-#         .catch((err) => {
-#           console.error(`An error occurred: ${err}`);
-#         });
-  
-#       video.addEventListener(
-#         "canplay",
-#         (ev) => {
-#           if (!streaming) {
-#             height = video.videoHeight / (video.videoWidth / width);
-  
-#             // Firefox currently has a bug where the height can't be read from
-#             // the video, so we will make assumptions if this happens.
-  
-#             if (isNaN(height)) {
-#               height = width / (4 / 3);
-#             }
-  
-#             video.setAttribute("width", width);
-#             video.setAttribute("height", height);
-#             canvas.setAttribute("width", width);
-#             canvas.setAttribute("height", height);
-#             streaming = true;
-#           }
-#         },
-#         false
-#       );
-  
-#       startbutton.addEventListener(
-#         "click",
-#         (ev) => {
-#           takepicture();
-#           ev.preventDefault();
-#         },
-#         false
-#       );
-  
-#       clearphoto();
-#     }
-  
-#     // Fill the photo with an indication that none has been
-#     // captured.
-  
-#     function clearphoto() {
-#       const context = canvas.getContext("2d");
-#       context.fillStyle = "#AAA";
-#       context.fillRect(0, 0, canvas.width, canvas.height);
-  
-#       const data = canvas.toDataURL("image/png");
-#       photo.setAttribute("src", data);
-#     }
-  
-#     // Capture a photo by fetching the current contents of the video
-#     // and drawing it into a canvas, then converting that to a PNG
-#     // format data URL. By drawing it on an offscreen canvas and then
-#     // drawing that to the screen, we can change its size and/or apply
-#     // other changes before drawing it.
-  
-#     function takepicture() {
-#       const context = canvas.getContext("2d");
-#       if (width && height) {
-#         canvas.width = width;
-#         canvas.height = height;
-#         context.drawImage(video, 0, 0, width, height);
-  
-#         const data = canvas.toDataURL("image/png");
-#         photo.setAttribute("src", data);
-#       } else {
-#         clearphoto();
-#       }
-#     }
-  
-#     // Set up our event listener to run the startup process
-#     // once loading is complete.
-#     window.addEventListener("load", startup, false);
-#   })();
-
-#   function sendPhoto(){
-#     var request = new XMLHttpRequest();
-
-#     // Instantiating the request object
-#     request.open("POST", "192.168.0.1:3000/login", true);
-#     request.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
-
-#     request.onreadystatechange = function() {
-#       if(this.readyState === 4 && this.status === 200) {
-#           document.getElementById("result").innerHTML = this.responseText;
-
-#       }
-#     };
-
-#     request.send();
-
-
-#   }
-#   """
-
-# @app.route("/style/style.css")
-# def getStyleCSS():
-#     return """
-#     #video {
-#     border: 1px solid black;
-#     box-shadow: 2px 2px 3px black;
-#     width: 320px;
-#     height: 240px;
-#   }
-  
-#   #photo {
-#     border: 1px solid black;
-#     box-shadow: 2px 2px 3px black;
-#     width: 320px;
-#     height: 240px;
-#   }
-  
-#   #canvas {
-#     display: none;
-#   }
-  
-#   .camera {
-#     width: 340px;
-#     display: inline-block;
-#   }
-  
-#   .output {
-#     width: 340px;
-#     display: inline-block;
-#     vertical-align: top;
-#   }
-  
-#   #startbutton {
-#     display: block;
-#     position: relative;
-#     margin-left: auto;
-#     margin-right: auto;
-#     bottom: 32px;
-#     background-color: rgba(0, 150, 0, 0.5);
-#     border: 1px solid rgba(255, 255, 255, 0.7);
-#     box-shadow: 0px 0px 1px 2px rgba(0, 0, 0, 0.2);
-#     font-size: 14px;
-#     font-family: "Lucida Grande", "Arial", sans-serif;
-#     color: rgba(255, 255, 255, 1);
-#   }
-  
-#   .contentarea {
-#     font-size: 16px;
-#     font-family: "Lucida Grande", "Arial", sans-serif;
-#     width: 760px;
-#   }
-  
-#     """

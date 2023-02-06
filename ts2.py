@@ -4,8 +4,13 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 import face_recognition
 import numpy 
-
+from jwtoken import bls_signature
+from datetime import datetime
+from cryptography.hazmat.primitives.asymmetric import ec
+from blspy import (PrivateKey, Util, AugSchemeMPL, PopSchemeMPL,
+                   G1Element, G2Element)
 app = Flask(__name__)
+private_bls_key = None
 
 with open('public.pem', 'rb') as f:
         public_key = f.read()
@@ -42,18 +47,49 @@ def checkEncodings(saved_encoding, received_encoding):
         else:
                 return False
 
+def generate_sk():
+    # print("\n*** TEST BLS SIGNATURE ***\n")
+    seed: bytes = bytes([0,  50, 6,  244, 24,  199, 1,  25,  52,  88,  192,
+                        19, 18, 12, 89,  6,   220, 18, 102, 58,  209, 82,
+                        12, 62, 89, 110, 182, 9,   44, 20,  254, 22])
+    seed = bytes([1]) + seed[1:]
+    sk = PopSchemeMPL.key_gen(seed)
+    #sk1: PrivateKey = AugSchemeMPL.key_gen(seed)
+    return sk
+
+def generate_pk_pop(sk):
+        pk: G1Element = sk.get_g1()
+        pop = PopSchemeMPL.pop_prove(sk)
+        pk_base64_encoded = base64.urlsafe_b64encode(bytes(pk)).decode('utf-8')
+        pop_base64_encoded = base64.urlsafe_b64encode(bytes(pop)).decode('utf-8')
+        return pk_base64_encoded + "|" + pop_base64_encoded
+
+def bls_token(username, received_encoding):
+    global private_bls_key
+    print("Private key: ", private_bls_key)
+    # print("\n*** TEST BLS SIGNATURE ***\n")
+    exp_time = datetime(2022, 10, 13, 12, 4, 46)
+    nbf_time = datetime.now()        
+    claims = {"username": username, "received_encoding": received_encoding[:10], "exp":exp_time, "nbf":nbf_time}   
+    token = bls_signature(claims, private_bls_key)
+    print(f"Generated token: {token}")
+    return token
+
 @app.route('/server', methods=['GET', 'POST'])
 def handle():
+        global private_bls_key
+        private_bls_key = generate_sk()
         # rsa_private_key = RSA.importKey(open('key.pem', "rb").read())
         # encrypted_text = rsa_private_key.encrypt(b'test')
-        base64_public_key = base64.b64encode(public_key)
         base64_BASE_URL = base64.b64encode(BASE_URL)
         headers = request.headers
         username = headers['username']
         saved_encoding = headers['saved_encoding']
         received_encoding = headers['received_encoding']
-        data = base64_BASE_URL.decode("utf-8") +"|"+base64_public_key.decode("utf-8")+"|"+username
-
+        token = bls_token(username, received_encoding)
+        base64_token = base64.b64encode(token)
+        data = base64_BASE_URL.decode("utf-8") +"|"+base64_token.decode("utf-8")+"|"+generate_pk_pop(private_bls_key)+"|"+username
+        print("Data: ", data)
         # print("Ricevuta richiesta da: ", username)
         # print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
         if(saved_encoding is None):
@@ -69,10 +105,10 @@ def handle():
 
 @app.route('/sign', methods=['GET', 'POST'])
 def prove():
-        headers = request.headers
-        base64_message = headers['message']
-        message = base64.b64decode(base64_message)
-        return decript_message(public_key, message)
+    global private_bls_key
+    pk_pop = generate_pk_pop(private_bls_key)
+    print("Public key and pop ", pk_pop)
+    return str(pk_pop)
 
 if __name__ == "__main__":
     app.run()
