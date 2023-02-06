@@ -17,17 +17,6 @@ with open('public.pem', 'rb') as f:
 
 BASE_URL = b'http://127.0.0.1:6000'
 
-def decript_message(public_key, encrypted_text):
-    rsa_private_key = RSA.importKey(open('key.pem', "rb").read())
-    rsa_public_key = RSA.importKey(public_key)
-    rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
-    # print('debug encrypted text: {}'.format(encrypted_text))
-
-    rsa_private_key = PKCS1_OAEP.new(rsa_private_key)
-    decrypted_text = rsa_private_key.decrypt(encrypted_text)
-    result = (decrypted_text)
-    print("Decrypted text: ", result)
-    return(result)
 
 # check if the received encoding is valid
 def checkEncodings(saved_encoding, received_encoding):
@@ -79,8 +68,6 @@ def bls_token(username, received_encoding):
 def handle():
         global private_bls_key
         private_bls_key = generate_sk()
-        # rsa_private_key = RSA.importKey(open('key.pem', "rb").read())
-        # encrypted_text = rsa_private_key.encrypt(b'test')
         base64_BASE_URL = base64.b64encode(BASE_URL)
         headers = request.headers
         username = headers['username']
@@ -90,8 +77,7 @@ def handle():
         base64_token = base64.b64encode(token)
         data = base64_BASE_URL.decode("utf-8") +"|"+base64_token.decode("utf-8")+"|"+generate_pk_pop(private_bls_key)+"|"+username
         print("Data: ", data)
-        # print("Ricevuta richiesta da: ", username)
-        # print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
+        
         if(saved_encoding is None):
                 return jsonify(data)
         else:
