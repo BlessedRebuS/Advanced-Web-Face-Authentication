@@ -1,14 +1,11 @@
 from flask import Flask, request, jsonify
 import base64
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
 import face_recognition
 import numpy 
 from jwtoken import bls_signature
 from datetime import datetime
-from cryptography.hazmat.primitives.asymmetric import ec
-from blspy import (PrivateKey, Util, AugSchemeMPL, PopSchemeMPL,
-                   G1Element, G2Element)
+from blspy import (PopSchemeMPL, G1Element)
+
 app = Flask(__name__)
 private_bls_key = None
 

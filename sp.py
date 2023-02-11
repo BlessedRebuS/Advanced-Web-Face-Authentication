@@ -9,7 +9,7 @@ import numpy
 import os 
 from jwtoken import verify_aggregate_signature, base64url_decode
 from datetime import datetime
-from blspy import PrivateKey, AugSchemeMPL, PopSchemeMPL, G1Element, G2Element
+from blspy import G1Element, G2Element
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'

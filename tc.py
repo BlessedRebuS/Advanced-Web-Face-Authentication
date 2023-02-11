@@ -1,8 +1,6 @@
 from flask import Flask, jsonify, request
 import requests
-import base64
-from blspy import (PrivateKey, Util, AugSchemeMPL, PopSchemeMPL,
-                   G1Element, G2Element)
+from blspy import (PopSchemeMPL, G1Element, G2Element)
 from jwtoken import base64url_decode, aggregate_signature
 
 app = Flask(__name__)
