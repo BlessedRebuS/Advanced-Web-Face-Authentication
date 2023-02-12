@@ -80,9 +80,8 @@ def parser(status, status_string, response, jwt_token):
           username = i.split("|")[4]
           if server_url in valid_servers:
               result.append('<table style="border:2px solid black;">'+ '<tr>' + '<th>' + server_url + '</th>' + '<th>' + '<textarea readonly style="border:double 2px green;" id="print_key" name="key" rows="10" cols="50">' + "Public Key:\n" + str(pk) + "\n\nProof of Possession:\n" + str(pop) + '</textarea>' + '</th>' + '</tr>' + '</table>')
-      headerUsername = '<h3>Username: ' + username+'</h3>'
-      headerToken = '<h3> JWT Token: </h3>' + jwt_token
-      indexContent = headerUsername + headerToken
+      headerToken = '<h2>JWT Token</h2>' + '<table style="border:2px solid black;">'+ '<tr>' + '<th>' + '<h3>Username: ' + username + '</h3>' + '</th>' + '<th>' + '<textarea readonly style="border:double 2px blue;" id="print_key" name="key" rows="10" cols="50">' + jwt_token + '</textarea>' + '</th>' + '</tr>' + '</table>' + "<br>" + '<h2>Trust Servers</h2>'
+      indexContent = headerToken
       indexContent += "<br>".join(result)
       return
 
@@ -219,8 +218,8 @@ def logout():
 @login_required
 def index():
     global indexContent
-    return "<h1>Home Page</h1>" + indexContent
-
+    return "<h1 style='text-align:center;'>Trust Identity Chain</h1>" + indexContent
+    
 # run with 127.0.0.1 because CORS works only with this address
 if __name__ == "__main__":
     CORS(app)
