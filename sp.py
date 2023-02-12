@@ -68,23 +68,22 @@ def encrypt_message(base64_public_key, message):
     encrypted_text = rsa_public_key.encrypt(message)
     return base64.b64encode(encrypted_text)
 
-def parser(status_string, response, jwt_token, thresold):
+def parser(status_string, response, jwt_token, threshold):
     global indexContent
     result = []
-    server_urls = json.loads(response)
-    if(thresold is not None):
-      indexContent = status_string
+    if(status_string is False):
+      indexContent = response
       return 
     else: 
+      server_urls = json.loads(response)
       for i in server_urls:
           server_url = base64.b64decode(i.split("|")[0]).decode("utf-8")
           server_key = base64.b64decode(i.split("|")[1]).decode("utf-8")
           username = i.split("|")[2]
           if server_url in server_names:
-              result.append('<table style="border:2px solid black;">'+ '<tr>' + '<th>' + server_url + '</th>' + '<th>' + '<textarea readonly style="border:double 2px green;" id="print_key" name="key" rows="10" cols="50">' + server_key + '</textarea>' + '</th>' + '</tr>' + '</table>')
-      headerUsername = '<h2>Username: '+username+'</h2>'
-      headerToken = '<h3> JWT Token: </h3>' + jwt_token
-      indexContent = headerUsername + headerToken
+              result.append('<table style="border:2px solid black;">'+ '<tr>' + '<th>' + '<h3>IP:</h3>' + server_url + '</th>' + '<th>' + '<textarea readonly style="border:double 2px green;" id="print_key" name="key" rows="10" cols="50">' + server_key + '</textarea>' + '</th>' + '</tr>' + '</table>')
+      headerToken = '<h2> JWT Token: </h2>' + '<table style="border:2px solid black;">'+ '<tr>' + '<th>' + '<h3>Username: ' + username + '</h3>' + '</th>' + '<th>' + '<textarea readonly style="border:double 2px blue;" id="print_key" name="key" rows="10" cols="50">' + jwt_token + '</textarea>' + '</th>' + '</tr>' + '</table>' + "<br>" + '<h2>Trust Servers</h2>'
+      indexContent = headerToken
       indexContent += "<br>".join(result)
       return
 
@@ -138,7 +137,7 @@ def checkSign(signature, threshold=2):
 
 def checkStatus(r):
   if r.status_code == 200:
-    # print("Token: ", r.json()['token'])
+    print("Token: ", r.json()['token'])
     # check the signature
     if(checkSign(r.json()['signature'], THRESHOLD)):
         print("JSON: ", r.json())
@@ -149,8 +148,11 @@ def checkStatus(r):
         ok_string = "<h2>User logged in, signature servers:<h2>"
         parser(ok_string, signature, token, None)
     else:
-        err_string = "<h2>User logged in, but signature servers are not enough. It is required a thresold of {THRESHOLD} servers</h2>"
-        parser(err_string, signature, token, THRESHOLD)
+        u = User(r.json())
+        login_user(u)
+        status = False
+        err_string = f"<h2>User logged in, but signature servers are not enough. It is required a threshold of {THRESHOLD} servers</h2>"
+        parser(status, err_string, None, None)
     return redirect(url_for("index"))
   else:
     return 'Unauthorized: Invalid credentials', 401
@@ -215,12 +217,12 @@ def logout():
     logout_user()
     return "User logged out"
 
-#user home page (only visible when logged in)
 @app.route("/")
 @login_required
 def index():
     global indexContent
-    return "<h1>Home Page</h1>" + indexContent
+    #center the content
+    return "<h1 style='text-align:center;'>Trust Identity Chain</h1>" + indexContent
 
 if __name__ == "__main__":
     CORS(app)
