@@ -82,7 +82,7 @@ def parser(status_string, response, jwt_token, threshold):
           username = i.split("|")[2]
           if server_url in server_names:
               result.append('<table style="border:2px solid black;">'+ '<tr>' + '<th>' + '<h3>IP:</h3>' + server_url + '</th>' + '<th>' + '<textarea readonly style="border:double 2px green;" id="print_key" name="key" rows="10" cols="50">' + server_key + '</textarea>' + '</th>' + '</tr>' + '</table>')
-      headerToken = '<h2> JWT Token: </h2>' + '<table style="border:2px solid black;">'+ '<tr>' + '<th>' + '<h3>Username: ' + username + '</h3>' + '</th>' + '<th>' + '<textarea readonly style="border:double 2px blue;" id="print_key" name="key" rows="10" cols="50">' + jwt_token + '</textarea>' + '</th>' + '</tr>' + '</table>' + "<br>" + '<h2>Trust Servers</h2>'
+      headerToken = '<h2>JWT Token</h2>' + '<table style="border:2px solid black;">'+ '<tr>' + '<th>' + '<h3>Username: ' + username + '</h3>' + '</th>' + '<th>' + '<textarea readonly style="border:double 2px blue;" id="print_key" name="key" rows="10" cols="50">' + jwt_token + '</textarea>' + '</th>' + '</tr>' + '</table>' + "<br>" + '<h2>Trust Servers</h2>'
       indexContent = headerToken
       indexContent += "<br>".join(result)
       return
@@ -221,7 +221,6 @@ def logout():
 @login_required
 def index():
     global indexContent
-    #center the content
     return "<h1 style='text-align:center;'>Trust Identity Chain</h1>" + indexContent
 
 if __name__ == "__main__":
