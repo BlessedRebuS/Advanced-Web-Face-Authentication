@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
 var http = require('http');
-
+var shasum = require('shasum')
 
 // A map to store the users and their credentials
 const users = new Map();
@@ -110,7 +110,12 @@ app.get('/profile', checkAuthenticated, (req, res) => {
         });
         return;
       }
-      jwt.sign({user:user},'secretkey',(err,token)=>{
+
+      const jwt_user = {
+        username: username,
+        encoding_shasum: shasum(user.encoding),
+      }
+      jwt.sign({user:jwt_user}, 'secretkey',(err,token)=>{
             res.json({
                 token, 
                 signature,

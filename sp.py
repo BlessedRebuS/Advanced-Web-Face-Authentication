@@ -137,7 +137,7 @@ def checkSign(signature):
 
 def checkStatus(r):
   if r.status_code == 200:
-    # print("Token: ", r.json()['token'])
+    print("Token: ", r.json()['token'])
     # check the signature
     if(checkSign(r.json()['signature'])):
         u = User(r.json())
@@ -185,15 +185,19 @@ def login_password():
 #send request to check if attempt face match with known user face
 @app.route("/facesend", methods=["GET", "POST"])
 def face_send():
-    image_dir = 'images'
-    username = request.headers.get('username')
-    photo_path = f'{image_dir}/{username}.jpg'
-    data = request.get_data()
-    with open(photo_path, 'wb') as f:
-        f.write(data)
-    encoding = generateEncoding(photo_path)
-    r = identify_face(username, encoding)
-    os.remove(photo_path)
+    try:
+        username = request.headers.get('username')
+        photo_path = f'{username}.jpg'
+        data = request.get_data()
+        with open(photo_path, 'wb') as f:
+            f.write(data)
+        encoding = generateEncoding(photo_path)
+        r = identify_face(username, encoding)
+        os.remove(photo_path)
+    except:
+        print("Error, face not sent")
+        os.remove(photo_path)
+        return 'Unauthorized: Invalid credentials', 401
     return checkStatus(r)
 
 #logout and destroy session

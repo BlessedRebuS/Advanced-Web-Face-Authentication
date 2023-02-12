@@ -9,8 +9,6 @@ from blspy import (PopSchemeMPL, G1Element)
 app = Flask(__name__)
 private_bls_key = None
 
-with open('public.pem', 'rb') as f:
-        public_key = f.read()
 
 BASE_URL = b'http://127.0.0.1:5000'
 
