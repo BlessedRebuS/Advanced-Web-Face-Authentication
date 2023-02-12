@@ -62,17 +62,17 @@ def user_loader(user_id):
     user = User(user_id)
     return user
 
-def parser(status_string, response, thresold):
+def parser(status, status_string, response, jwt_token):
     global indexContent
     result = []
-    server_urls = json.loads(response)
-    if(thresold is not None):
+    if(status is False):
+      print("ERROR")
       indexContent = status_string
       return 
     else: 
+      server_urls = json.loads(response)
       for i in server_urls:
           server_url = base64.b64decode(i.split("|")[0]).decode("utf-8")
-          jwt_token = base64.b64decode(i.split("|")[1]).decode("utf-8")
           base64_pk = i.split("|")[2]
           base64_pop = i.split("|")[3]
           pk = G1Element.from_bytes(base64url_decode(base64_pk))
@@ -137,16 +137,22 @@ def checkSign(signature):
 
 def checkStatus(r):
   if r.status_code == 200:
-    print("Token: ", r.json()['token'])
     # check the signature
     if(checkSign(r.json()['signature'])):
+        print("JSON: ", r.json())
+        token = r.json()['token']
+        signature = r.json()['signature']
         u = User(r.json())
         login_user(u)
         ok_string = "<h2>User logged in, signature servers:<h2>"
-        parser(ok_string, r.json()['signature'], None)
+        status = True
+        parser(status, ok_string, signature, token)
     else:
-        err_string = "<h2>User logged in, but signature servers are not enough. It is required a thresold of {THRESHOLD} servers</h2>"
-        parser(err_string, r.json()['signature'], THRESHOLD)
+        u = User(r.json())
+        login_user(u)
+        status = False
+        err_string = "<h2>User logged in, but there are no servers that can sign your token</h2>"
+        parser(status, err_string, None, None)
     return redirect(url_for("index"))
   else:
     return 'Unauthorized: Invalid credentials', 401

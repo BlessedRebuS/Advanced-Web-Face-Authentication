@@ -5,6 +5,7 @@ import numpy
 from jwtoken import bls_signature
 from datetime import datetime
 from blspy import (PopSchemeMPL, G1Element)
+import hashlib
 
 app = Flask(__name__)
 private_bls_key = None
@@ -53,8 +54,10 @@ def bls_token(username, received_encoding):
     print("Private key: ", private_bls_key)
     # print("\n*** TEST BLS SIGNATURE ***\n")
     exp_time = datetime(2022, 10, 13, 12, 4, 46)
-    nbf_time = datetime.now()        
-    claims = {"username": username, "received_encoding": received_encoding[:10], "exp":exp_time, "nbf":nbf_time}   
+    nbf_time = datetime.now()
+    # less bandwidth with only the shasum of the encoding
+    received_encoding_shasum = hashlib.sha256(received_encoding.encode('utf-8')).hexdigest()
+    claims = {"username": username, "received_encoding": received_encoding_shasum, "exp":exp_time, "nbf":nbf_time}   
     token = bls_signature(claims, private_bls_key)
     print(f"Generated token: {token}")
     return token

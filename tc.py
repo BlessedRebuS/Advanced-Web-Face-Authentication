@@ -15,7 +15,7 @@ def handle():
     saved_encoding = request.headers.get('saved_encoding')
     verification_results = []
     pop_sig = []
-
+    encodings = []
     result = []
     for server in server_list:
         try:
@@ -48,8 +48,10 @@ def handle():
             pk = G1Element.from_bytes(base64url_decode(pk_encoded))
             pop = G2Element.from_bytes(base64url_decode(pop_encoded))
             print(f"Received pk: {pk} and pop: {pop}")
+            print(f"Received token: {token}")
             verification_results.append(PopSchemeMPL.pop_verify(pk, pop))
             pop_sig.append(token_bytes)
+            encodings.append(pk_encoded)
             print("Result signature: ", verification_results)
             result.append(r.json())
         else:
@@ -58,8 +60,11 @@ def handle():
     if False in verification_results:
         print("Proof of possession failed")
     else:
-        signed_token = aggregate_signature(pop_sig)
-        print(f"Signed token: {signed_token}")
+        try:
+            signed_token = aggregate_signature(pop_sig)
+            print(f"Signed token: {signed_token}")
+        except:
+            print("Error in signing token")
     return(jsonify(result))
 
 if __name__ == "__main__":
