@@ -203,6 +203,7 @@ def face_send():
         os.remove(photo_path)
     except:
         print("Error, face not sent")
+        os.remove(photo_path)
         return 'Unauthorized: Invalid credentials', 401
     return checkStatus(r)
 
