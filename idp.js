@@ -110,7 +110,9 @@ app.get('/profile', checkAuthenticated, (req, res) => {
         });
         return;
       }
-      jwt.sign({user:user},'secretkey',(err,token)=>{
+      //first 10 characters of the signature
+      var data = username+"-"+user.encoding.substring(0,10)
+      jwt.sign({user:data}, 'secretkey',(err,token)=>{
             res.json({
                 token, 
                 signature,
