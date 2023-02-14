@@ -4,13 +4,19 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 import face_recognition
 import numpy 
+import os
 
 app = Flask(__name__)
+
+try:
+        PORT = os.environ['SERVER_PORT']
+except:
+        PORT = 5000
 
 with open('public.pem', 'rb') as f:
         public_key = f.read()
 
-BASE_URL = b'http://127.0.0.1:5000'
+BASE_URL = b'http://ts:' + bytes(str(PORT), 'utf-8')
 
 def decript_message(public_key, encrypted_text):
     rsa_private_key = RSA.importKey(open('key.pem', "rb").read())

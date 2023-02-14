@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 import requests
 
 app = Flask(__name__)
-server_list = ["http://127.0.0.1:5000", "http://127.0.0.1:6000", "http://127.0.0.1:7000"]
+server_list = ["http://ts:5000", "http://ts:6000", "http://ts:7000"]
 
 
 @app.route('/' , methods=['GET', 'POST'])

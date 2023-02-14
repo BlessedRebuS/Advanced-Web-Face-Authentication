@@ -9,6 +9,7 @@ from flask_cors import CORS
 import face_recognition
 import numpy
 import os 
+import logging
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
@@ -22,9 +23,25 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # The base URL of the identity provider
-IDP_BASE_URL = 'http://localhost:3000'
-SP_BASE_URL = 'http://localhost:1111'
+IDP_BASE_URL = 'http://idp:3000'
+SP_BASE_URL = 'http://sp:1111'
     
+def _logger():
+    '''
+    Setup logger format, level, and handler.
+    RETURNS: log object
+    '''
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    log = logging.getLogger(__name__)
+    log.setLevel(LOG_LEVEL)
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+
+    log.addHandler(stream_handler)
+    return log
+
 class User(UserMixin):
     def __init__(self, id):
         self.id = id
@@ -224,13 +241,15 @@ def index():
     return "<h1 style='text-align:center;'>Trust Identity Chain</h1>" + indexContent
 
 if __name__ == "__main__":
+    LOG = _logger()
+    LOG.debug("Log level: INFO")
     CORS(app)
     cors = CORS(app, resource={
         r"/*":{
             "origins":"*"
         }
     })
-    app.run()
+    app.run(debug=True)
 
 #return login page with face sending
 @app.route("/loginface")

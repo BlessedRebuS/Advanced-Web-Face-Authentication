@@ -126,7 +126,7 @@ app.get('/profile', checkAuthenticated, (req, res) => {
   if(encoding != null) {
   //console.log("Encoding: " + encoding, "Saved Encoding: " + user.encoding)
   var options = {
-    host: '127.0.0.1',
+    host: 'tc',
     path: '/',
     port: '1234',
     headers: {
@@ -138,7 +138,7 @@ app.get('/profile', checkAuthenticated, (req, res) => {
   };
   } else {
     var options = {
-      host: '127.0.0.1',
+      host: 'tc',
       path: '/',
       port: '1234',
       headers: {
