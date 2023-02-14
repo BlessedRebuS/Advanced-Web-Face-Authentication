@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2023-02-14T14:02:42Z"
+  labels:
+    app: sp
+  name: sp
+  namespace: default
+  resourceVersion: "198666"
+  uid: d302530e-439a-49f0-987d-c31c0e961747
+spec:
+  clusterIP: 10.111.225.45
+  clusterIPs:
+  - 10.111.225.45
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 1111
+    protocol: TCP
+    targetPort: 1111
+  selector:
+    app: sp
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

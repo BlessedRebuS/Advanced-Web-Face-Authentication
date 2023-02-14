@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2023-02-14T14:03:00Z"
+  labels:
+    run: ts
+  name: ts
+  namespace: default
+  resourceVersion: "198685"
+  uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
+spec:
+  clusterIP: 10.108.69.38
+  clusterIPs:
+  - 10.108.69.38
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    run: ts
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

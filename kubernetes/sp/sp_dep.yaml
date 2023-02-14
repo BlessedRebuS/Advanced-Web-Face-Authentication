@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: sp
+  name: sp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: sp
+    spec:
+      containers:
+      - image: blessedrebus/sp:sp
+        name: sp
+        ports:
+        - containerPort: 5000
+        resources: {}
+status: {}
