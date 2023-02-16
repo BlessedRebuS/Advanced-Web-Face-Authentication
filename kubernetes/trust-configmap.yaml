@@ -1,0 +1,9 @@
+#configmap with list of trusted servers
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trusted-servers
+data:
+  trusted-servers: |
+    - http://ts:5000
+    - http://ts:6000

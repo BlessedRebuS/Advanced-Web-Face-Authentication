@@ -60,9 +60,15 @@ metadata:
     run: tc
   name: tc
 spec:
-  containers:
+  containers: 
   - image: blessedrebus/tc:tc
     name: tc
+    env:
+    - name: TRUSTED_SERVERS
+      valueFrom:
+        configMapKeyRef:
+          name: trusted-servers
+          key: trusted-servers
     resources: {}
   dnsPolicy: ClusterFirst
   restartPolicy: Never
@@ -74,11 +80,33 @@ metadata:
   creationTimestamp: null
   labels:
     run: ts
-  name: ts
+  name: ts1
 spec:
   containers:
   - image: blessedrebus/ts:ts
-    name: ts
+    name: ts1
+    env:
+    - name: SERVER_PORT
+      value: "5000"
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: ts
+  name: ts2
+spec:
+  containers:
+  - image: blessedrebus/ts:ts
+    name: ts2
+    env:
+    - name: SERVER_PORT
+      value: "6000"
     resources: {}
   dnsPolicy: ClusterFirst
   restartPolicy: Never
@@ -190,8 +218,13 @@ spec:
   - IPv4
   ipFamilyPolicy: SingleStack
   ports:
-  - port: 5000
+  - name: ts1
     protocol: TCP
+    port: 5000
+    targetPort: 5000
+  - name: ts2
+    protocol: TCP
+    port: 6000
     targetPort: 5000
   selector:
     run: ts

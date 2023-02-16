@@ -38,6 +38,7 @@ def handle():
             print(f"Server {server} is working")
             result.append(r.json())
         else:
+            print("Response code: ", r.status_code)
             print(f"Error in server {server}")
     print(f"Result: {(result)}")
     return(jsonify(result))

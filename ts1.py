@@ -59,8 +59,9 @@ def handle():
                 return jsonify(data)
         else:
                 check = checkEncodings(saved_encoding, received_encoding)
+                print(f"CHECK: {check}")
                 if(check is True):
-                        print("DATA:" + (data))
+                        #print("DATA:" + (data))
                         return jsonify(data)
                 else:   
                         error = "ERR"

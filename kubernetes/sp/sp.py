@@ -10,6 +10,7 @@ import face_recognition
 import numpy
 import os 
 import logging
+import traceback
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
@@ -122,6 +123,8 @@ def checkSign(signature, threshold=2):
                     }
                 )
             except:
+                traceback.print_exc()
+                print("SERVER URL: ", server_url)
                 print(f"Error, signature from {server_url} NOT received")
                 if(server_url in server_names):
                     server_names.remove(server_url)
@@ -221,6 +224,7 @@ def face_send():
         r = identify_face(username, encoding)
         os.remove(photo_path)
     except:
+        traceback.print_exc()
         print("Error, face not sent")
         os.remove(photo_path)
         return 'Unauthorized: Invalid credentials', 401

@@ -148,6 +148,7 @@ def checkStatus(r):
         ok_string = "<h2>User logged in, signature servers:<h2>"
         parser(ok_string, signature, token, None)
     else:
+        ### DA GESTIRE IL LOGIN SE UN UTENTE NON HA LA STESSA FACCIA DELL'ENCODING
         u = User(r.json())
         login_user(u)
         status = False

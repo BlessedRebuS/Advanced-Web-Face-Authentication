@@ -1,16 +1,26 @@
 from flask import Flask, jsonify, request
 import requests
+import os
 
 app = Flask(__name__)
-server_list = ["http://ts:5000", "http://ts:6000", "http://ts:7000"]
+server_list = []
+try:
+        parse_list = os.environ['TRUSTED_SERVERS']
+        for i in parse_list.split("-"):
+            i = i.strip('\n')
+            i = i.strip(' ')
+            server_list.append(i)
+        server_list.remove("")
+except:
+        server_list.append('http://ts:5000')
 
+print("Server list: ", server_list)
 
 @app.route('/' , methods=['GET', 'POST'])
 def handle():
     username = request.headers.get('username')
     received_encoding = request.headers.get('received_encoding')
     saved_encoding = request.headers.get('saved_encoding')
-    # print(f"Received with encoding {encoding}, saved_encoding: {saved_encoding}")
 
     result = []
     for server in server_list:
