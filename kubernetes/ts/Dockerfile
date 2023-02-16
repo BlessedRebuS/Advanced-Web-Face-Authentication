@@ -10,8 +10,7 @@ RUN apt update -y \
 && apt install libglib2.0-0 -y \
 && apt install openssh-client -y
 RUN pip3 install -r requirements.txt
-RUN openssl genrsa -out key.pem 2048
-RUN openssl rsa -in key.pem -outform PEM -pubout -out public.pem
 ENV FLASK_RUN_HOST=0.0.0.0
 EXPOSE 5000
-ENTRYPOINT [ "flask", "--app" , "ts", "run"]
+#generate open ssl key in the entrypoint
+ENTRYPOINT [ "flask", "--app" , "ts", "run" ]

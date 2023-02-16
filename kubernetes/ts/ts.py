@@ -10,14 +10,19 @@ app = Flask(__name__)
 
 try:
         PORT = os.environ['SERVER_PORT']
+        SERVER_NUMBER = os.environ['SERVER_NUMBER']
 except:
         PORT = 5000
+        SERVER_NUMBER = "1"
+
+os.system("openssl genrsa -out key.pem 2048")
+os.system("openssl rsa -in key.pem -outform PEM -pubout -out public.pem")
 
 with open('public.pem', 'rb') as f:
         public_key = f.read()
 
-BASE_URL = b'http://ts:' + bytes(str(PORT), 'utf-8')
-
+BASE_URL = b'http://ts' +  bytes(str(SERVER_NUMBER), 'utf-8') + b':' + bytes(str(PORT), 'utf-8')
+print(BASE_URL)
 def decript_message(public_key, encrypted_text):
     rsa_private_key = RSA.importKey(open('key.pem', "rb").read())
     rsa_public_key = RSA.importKey(public_key)
@@ -59,8 +64,6 @@ def handle():
         received_encoding = headers['received_encoding']
         data = base64_BASE_URL.decode("utf-8") +"|"+base64_public_key.decode("utf-8")+"|"+username
 
-        # print("Ricevuta richiesta da: ", username)
-        # print(f"Received encoding: {received_encoding} and saved encoding: {saved_encoding}")
         if(saved_encoding is None):
                 return jsonify(data)
         else:
