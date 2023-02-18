@@ -1,4 +1,3 @@
-#configmap with list of trusted servers
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,4 +7,5 @@ data:
     - http://ts1:5000
     - http://ts2:6000
     - http://ts3:7000
+    - http://ts4:8000
   threshold: "2"

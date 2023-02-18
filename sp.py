@@ -150,6 +150,10 @@ def checkStatus(r):
         parser(ok_string, signature, token, None)
     else:
         ### DA GESTIRE IL LOGIN SE UN UTENTE NON HA LA STESSA FACCIA DELL'ENCODING
+        print("Signature: ", r.json()['signature'])
+        if(len(server_names) <= THRESHOLD and r.json()['signature'].split("|")[1] == "ERR"):
+            print("Error, faces are not the same")
+            return redirect(url_for("index"))
         u = User(r.json())
         login_user(u)
         status = False
