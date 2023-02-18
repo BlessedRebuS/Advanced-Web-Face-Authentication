@@ -11,8 +11,10 @@ try:
             i = i.strip(' ')
             server_list.append(i)
         server_list.remove("")
-except:
-        server_list.append('http://ts:5000')
+except: 
+        print("ERROR FETCHING SERVER LIST")
+        server_list.append('http://ts1:5000')
+        server_list.append('http://ts2:6000')
 
 print("Server list: ", server_list)
 
@@ -30,7 +32,7 @@ def handle():
                     f'{server}/server',
                     headers={
                     'username': username
-                    }
+                    }, timeout=2
                 )
             else:
                 r = requests.get(
@@ -39,7 +41,7 @@ def handle():
                     'username': username,
                     'saved_encoding': saved_encoding,
                     'received_encoding': received_encoding
-                    }
+                    }, timeout=2
                 )
         except:
             print(f"Error in server {server}")

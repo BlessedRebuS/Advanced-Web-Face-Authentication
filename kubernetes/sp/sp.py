@@ -12,9 +12,13 @@ import os
 import logging
 import traceback
 
+try:
+        THRESHOLD = os.environ['SERVER_THRESHOLD']
+except:
+        THRESHOLD = 2
+
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
-THRESHOLD = 2
 SECRET = app.secret_key.encode()
 server_names = []
 indexContent = ""
@@ -150,7 +154,7 @@ def checkSign(signature, threshold=2):
                 print(f"Error, signature from {server_url} NOT received")
     print(f"Server signed: {(server_names)}")
 
-    if(len(server_names) >= threshold):
+    if(len(server_names) >= int(THRESHOLD)):
         print("Total servers: ", len(server_names))
         return True
     return False
@@ -168,6 +172,11 @@ def checkStatus(r):
         ok_string = "<h2>User logged in, signature servers:<h2>"
         parser(ok_string, signature, token, None)
     else:
+        ### DA GESTIRE IL LOGIN SE UN UTENTE NON HA LA STESSA FACCIA DELL'ENCODING
+        print("Signature: ", r.json()['signature'])
+        if(len(server_names) <= int(THRESHOLD) and r.json()['signature'].split("|")[1] == "ERR"):
+            print("Error, faces are not the same")
+            return redirect(url_for("index"))
         u = User(r.json())
         login_user(u)
         status = False
@@ -224,7 +233,6 @@ def face_send():
         r = identify_face(username, encoding)
         os.remove(photo_path)
     except:
-        traceback.print_exc()
         print("Error, face not sent")
         os.remove(photo_path)
         return 'Unauthorized: Invalid credentials', 401

@@ -63,6 +63,7 @@ def user_loader(user_id):
 
 def encrypt_message(base64_public_key, message):
     public_key = base64.b64decode(base64_public_key)
+    print("Received public key: ", public_key)
     rsa_public_key = RSA.importKey(public_key)
     rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
     encrypted_text = rsa_public_key.encrypt(message)
@@ -123,7 +124,7 @@ def checkSign(signature, threshold=2):
                     if(server_url in server_names):
                         server_names.remove(server_url)
             else:
-                print(f"Error, server {server_url} is not working")
+                print(f"Error, server {server_url} is not working, status code: {r.status_code}")
                 if(server_url in server_names):
                     server_names.remove(server_url)
         else:

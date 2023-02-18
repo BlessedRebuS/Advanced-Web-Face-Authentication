@@ -2,8 +2,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: trusted-servers
+  name: trust-configuration
 data:
   trusted-servers: |
-    - http://ts:5000
-    - http://ts:6000
+    - http://ts1:5000
+    - http://ts2:6000
+    - http://ts3:7000
+  threshold: "2"

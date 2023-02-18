@@ -20,6 +20,12 @@ spec:
       containers:
       - image: blessedrebus/sp:sp
         name: sp
+        env:
+          - name: SERVER_THRESHOLD
+            valueFrom:
+              configMapKeyRef:
+                name: trust-configuration
+                key: threshold
         ports:
         - containerPort: 5000
         resources: {}
@@ -67,7 +73,7 @@ spec:
     - name: TRUSTED_SERVERS
       valueFrom:
         configMapKeyRef:
-          name: trusted-servers
+          name: trust-configuration
           key: trusted-servers
     resources: {}
   dnsPolicy: ClusterFirst
@@ -79,7 +85,7 @@ kind: Pod
 metadata:
   creationTimestamp: null
   labels:
-    run: ts
+    run: ts1
   name: ts1
 spec:
   containers:
@@ -88,6 +94,8 @@ spec:
     env:
     - name: SERVER_PORT
       value: "5000"
+    - name: SERVER_NUMBER
+      value: "1"
     resources: {}
   dnsPolicy: ClusterFirst
   restartPolicy: Never
@@ -98,7 +106,7 @@ kind: Pod
 metadata:
   creationTimestamp: null
   labels:
-    run: ts
+    run: ts2
   name: ts2
 spec:
   containers:
@@ -107,6 +115,29 @@ spec:
     env:
     - name: SERVER_PORT
       value: "6000"
+    - name: SERVER_NUMBER
+      value: "2"
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: ts3
+  name: ts3
+spec:
+  containers:
+  - image: blessedrebus/ts:ts
+    name: ts3
+    env:
+    - name: SERVER_PORT
+      value: "7000"
+    - name: SERVER_NUMBER
+      value: "3"
     resources: {}
   dnsPolicy: ClusterFirst
   restartPolicy: Never
@@ -204,8 +235,8 @@ kind: Service
 metadata:
   creationTimestamp: "2023-02-14T14:03:00Z"
   labels:
-    run: ts
-  name: ts
+    run: ts1
+  name: ts1
   namespace: default
   resourceVersion: "198685"
   uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
@@ -222,12 +253,68 @@ spec:
     protocol: TCP
     port: 5000
     targetPort: 5000
+  selector:
+    run: ts1
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2023-02-14T14:03:00Z"
+  labels:
+    run: ts2
+  name: ts2
+  namespace: default
+  resourceVersion: "198685"
+  uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
+spec:
+  clusterIP: 10.108.69.39
+  clusterIPs:
+  - 10.108.69.39
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
   - name: ts2
     protocol: TCP
     port: 6000
     targetPort: 5000
   selector:
-    run: ts
+    run: ts2
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2023-02-14T14:03:00Z"
+  labels:
+    run: ts3
+  name: ts3
+  namespace: default
+  resourceVersion: "198685"
+  uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
+spec:
+  clusterIP: 10.108.69.40
+  clusterIPs:
+  - 10.108.69.40
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: ts2
+    protocol: TCP
+    port: 7000
+    targetPort: 5000
+  selector:
+    run: ts3
   sessionAffinity: None
   type: ClusterIP
 status:

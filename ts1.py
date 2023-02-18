@@ -4,11 +4,16 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 import face_recognition
 import numpy 
+import os 
 
 app = Flask(__name__)
 
+os.system("openssl genrsa -out key.pem 2048")
+os.system("openssl rsa -in key.pem -outform PEM -pubout -out public.pem")
+
 with open('public.pem', 'rb') as f:
         public_key = f.read()
+
 
 BASE_URL = b'http://127.0.0.1:5000'
 
