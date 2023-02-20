@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: idp
+  name: idp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: idp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: idp
+    spec:
+      containers:
+      - image: blessedrebus/idp:idp
+        name: idp
+        ports:
+        - containerPort: 3000
+        resources: {}
+status: {}

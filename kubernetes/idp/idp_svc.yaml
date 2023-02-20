@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2023-02-14T14:02:34Z"
+  labels:
+    app: idp
+  name: idp
+  namespace: default
+  resourceVersion: "198654"
+  uid: b48ce977-f9dc-423c-97c9-e1546883e90e
+spec:
+  clusterIP: 10.106.13.126
+  clusterIPs:
+  - 10.106.13.126
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: idp
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
