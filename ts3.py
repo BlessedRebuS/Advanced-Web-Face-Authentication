@@ -54,10 +54,9 @@ def bls_token(username, received_encoding):
     print("Private key: ", private_bls_key)
     # print("\n*** TEST BLS SIGNATURE ***\n")
     exp_time = datetime(2022, 10, 13, 12, 4, 46)
-    nbf_time = datetime.now()
-    # less bandwidth with only the shasum of the encoding
-    received_encoding_shasum = hashlib.sha256(received_encoding.encode('utf-8')).hexdigest()
-    claims = {"username": username, "received_encoding": received_encoding_shasum, "exp":exp_time, "nbf":nbf_time}   
+    nbf_time = datetime.now()        
+    shasum_encoding = hashlib.sha256(received_encoding.encode('utf-8')).hexdigest()
+    claims = {"username": username, "received_encoding": shasum_encoding, "exp":exp_time, "nbf":nbf_time}   
     token = bls_signature(claims, private_bls_key)
     print(f"Generated token: {token}")
     return token
@@ -74,7 +73,6 @@ def handle():
         token = bls_token(username, received_encoding)
         base64_token = base64.b64encode(token)
         data = base64_BASE_URL.decode("utf-8") +"|"+base64_token.decode("utf-8")+"|"+generate_pk_pop(private_bls_key)+"|"+username
-        print("Data: ", data)
         
         if(saved_encoding is None):
                 return jsonify(data)
@@ -85,7 +83,9 @@ def handle():
                         return jsonify(data)
                 else:   
                         error = "ERR"
-                        return jsonify(base64_BASE_URL.decode("utf-8")+"|"+error+"|"+username)
+                        result = base64_BASE_URL.decode("utf-8")+"|"+error+"|"+username
+                        print("Result: " + str(result))
+                        return jsonify(result)
 
 @app.route('/sign', methods=['GET', 'POST'])
 def prove():

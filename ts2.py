@@ -73,7 +73,6 @@ def handle():
         token = bls_token(username, received_encoding)
         base64_token = base64.b64encode(token)
         data = base64_BASE_URL.decode("utf-8") +"|"+base64_token.decode("utf-8")+"|"+generate_pk_pop(private_bls_key)+"|"+username
-        print("Data: ", data)
         
         if(saved_encoding is None):
                 return jsonify(data)
@@ -84,7 +83,9 @@ def handle():
                         return jsonify(data)
                 else:   
                         error = "ERR"
-                        return jsonify(base64_BASE_URL.decode("utf-8")+"|"+error+"|"+username)
+                        result = base64_BASE_URL.decode("utf-8")+"|"+error+"|"+username
+                        print("Result: " + str(result))
+                        return jsonify(result)
 
 @app.route('/sign', methods=['GET', 'POST'])
 def prove():

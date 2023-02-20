@@ -93,6 +93,7 @@ def checkSign(signature):
     valid = False
     verified = False
     signatureList = json.loads(signature)
+    print("Signature list: ", signatureList)
     for i in signatureList:
         first_param = (i.split("|")[1])
         server_url = base64.b64decode(i.split("|")[0]).decode("utf-8")
@@ -147,6 +148,9 @@ def checkStatus(r):
         status = True
         parser(status, ok_string, signature, token)
     else:
+        if(r.json()['signature'].split("|")[1] == "ERR"):
+            print("Error, faces are not the same")
+            return redirect(url_for("index"))
         u = User(r.json())
         login_user(u)
         status = False

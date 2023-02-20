@@ -40,6 +40,10 @@ def handle():
             continue
         if r.status_code == 200:
             print(f"Server {server} is working")
+            if(r.json().split("|")[1] == "ERR"):
+                print("Error in server")
+                result.append(r.json())
+                continue
             token_encoded = r.json().split("|")[1]
             pk_encoded = r.json().split("|")[2]
             pop_encoded = r.json().split("|")[3]
