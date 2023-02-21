@@ -24,7 +24,7 @@ spec:
           - name: SERVER_THRESHOLD
             valueFrom:
               configMapKeyRef:
-                name: trust-configuration
+                name: trust-configuration-bls
                 key: threshold
         ports:
         - containerPort: 5000
@@ -73,7 +73,7 @@ spec:
     - name: TRUSTED_SERVERS
       valueFrom:
         configMapKeyRef:
-          name: trust-configuration
+          name: trust-configuration-bls
           key: trusted-servers
     resources: {}
   dnsPolicy: ClusterFirst

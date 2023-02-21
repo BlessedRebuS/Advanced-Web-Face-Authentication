@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: trust-configuration
+  name: trust-configuration-bls
 data:
   trusted-servers: |
     - http://tsbls1:5000
