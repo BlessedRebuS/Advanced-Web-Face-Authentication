@@ -13,8 +13,8 @@ try:
         server_list.remove("")
 except: 
         print("ERROR FETCHING SERVER LIST")
-        server_list.append('http://ts1:5000')
-        server_list.append('http://ts2:6000')
+        server_list.append('http://tslist1:5000')
+        server_list.append('http://tslist2:6000')
 
 print("Server list: ", server_list)
 
