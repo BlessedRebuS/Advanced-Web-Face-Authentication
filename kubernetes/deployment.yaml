@@ -144,27 +144,6 @@ spec:
 status: {}
 ---
 apiVersion: v1
-kind: Pod
-metadata:
-  creationTimestamp: null
-  labels:
-    run: ts4
-  name: ts4
-spec:
-  containers:
-  - image: blessedrebus/ts:bls
-    name: ts4
-    env:
-    - name: SERVER_PORT
-      value: "8000"
-    - name: SERVER_NUMBER
-      value: "4"
-    resources: {}
-  dnsPolicy: ClusterFirst
-  restartPolicy: Never
-status: {}
----
-apiVersion: v1
 kind: Service
 metadata:
   creationTimestamp: "2023-02-14T14:02:34Z"
@@ -336,36 +315,6 @@ spec:
     targetPort: 5000
   selector:
     run: ts3
-  sessionAffinity: None
-  type: ClusterIP
-status:
-  loadBalancer: {}
----
-apiVersion: v1
-kind: Service
-metadata:
-  creationTimestamp: "2023-02-14T14:03:00Z"
-  labels:
-    run: ts4
-  name: ts4
-  namespace: default
-  resourceVersion: "198685"
-  uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
-spec:
-  clusterIP: 10.108.69.41
-  clusterIPs:
-  - 10.108.69.41
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-  - IPv4
-  ipFamilyPolicy: SingleStack
-  ports:
-  - name: ts4
-    protocol: TCP
-    port: 8000
-    targetPort: 5000
-  selector:
-    run: ts4
   sessionAffinity: None
   type: ClusterIP
 status:
