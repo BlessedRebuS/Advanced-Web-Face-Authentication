@@ -12,7 +12,12 @@ from blspy import G1Element, G2Element
 
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
-THRESHOLD = 2
+
+try:
+        THRESHOLD = os.environ['SERVER_THRESHOLD']
+except:
+        THRESHOLD = 2
+        
 SECRET = app.secret_key.encode()
 valid_servers = []
 indexContent = ""
