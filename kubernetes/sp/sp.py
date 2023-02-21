@@ -28,8 +28,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # The base URL of the identity provider
-IDP_BASE_URL = 'http://idp:3000'
-SP_BASE_URL = 'http://sp:1111'
+IDP_BASE_URL = 'http://idplist:3000'
+SP_BASE_URL = 'http://splist:1111'
     
 def _logger():
     '''

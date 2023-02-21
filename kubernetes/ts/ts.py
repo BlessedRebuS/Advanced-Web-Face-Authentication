@@ -21,7 +21,7 @@ os.system("openssl rsa -in key.pem -outform PEM -pubout -out public.pem")
 with open('public.pem', 'rb') as f:
         public_key = f.read()
 
-BASE_URL = b'http://ts' +  bytes(str(SERVER_NUMBER), 'utf-8') + b':' + bytes(str(PORT), 'utf-8')
+BASE_URL = b'http://tslist' +  bytes(str(SERVER_NUMBER), 'utf-8') + b':' + bytes(str(PORT), 'utf-8')
 print(BASE_URL)
 def decript_message(public_key, encrypted_text):
     rsa_private_key = RSA.importKey(open('key.pem', "rb").read())

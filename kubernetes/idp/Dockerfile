@@ -1,6 +1,6 @@
 FROM node:latest
 WORKDIR /usr/app
-COPY ../idp.js .
+COPY idp.js .
 # install dependencies
 RUN npm install express
 RUN npm install jsonwebtoken
