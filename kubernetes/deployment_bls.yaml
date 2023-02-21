@@ -154,9 +154,9 @@ metadata:
   resourceVersion: "198654"
   uid: b48ce977-f9dc-423c-97c9-e1546883e90e
 spec:
-  clusterIP: 10.106.13.126
+  clusterIP: 10.106.13.127
   clusterIPs:
-  - 10.106.13.126
+  - 10.106.13.127
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4
@@ -183,9 +183,9 @@ metadata:
   resourceVersion: "198666"
   uid: d302530e-439a-49f0-987d-c31c0e961747
 spec:
-  clusterIP: 10.111.225.45
+  clusterIP: 10.111.225.46
   clusterIPs:
-  - 10.111.225.45
+  - 10.111.225.46
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4
@@ -212,9 +212,9 @@ metadata:
   resourceVersion: "198676"
   uid: c8d485e6-c4e3-4097-af3d-f7721217975f
 spec:
-  clusterIP: 10.106.121.180
+  clusterIP: 10.106.121.181
   clusterIPs:
-  - 10.106.121.180
+  - 10.106.121.181
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4
@@ -241,9 +241,9 @@ metadata:
   resourceVersion: "198685"
   uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
 spec:
-  clusterIP: 10.108.69.38
+  clusterIP: 10.108.69.48
   clusterIPs:
-  - 10.108.69.38
+  - 10.108.69.48
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4
@@ -271,9 +271,9 @@ metadata:
   resourceVersion: "198685"
   uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
 spec:
-  clusterIP: 10.108.69.39
+  clusterIP: 10.108.69.49
   clusterIPs:
-  - 10.108.69.39
+  - 10.108.69.49
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4
@@ -301,9 +301,9 @@ metadata:
   resourceVersion: "198685"
   uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
 spec:
-  clusterIP: 10.108.69.40
+  clusterIP: 10.108.69.50
   clusterIPs:
-  - 10.108.69.40
+  - 10.108.69.50
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4
