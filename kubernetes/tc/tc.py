@@ -15,8 +15,8 @@ try:
         server_list.remove("")
 except: 
         print("ERROR FETCHING SERVER LIST")
-        server_list.append('http://ts1:5000')
-        server_list.append('http://ts2:6000')
+        server_list.append('http://tsbls1:5000')
+        server_list.append('http://tsbls2:6000')
 
 
 @app.route('/' , methods=['GET', 'POST'])

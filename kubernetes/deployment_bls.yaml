@@ -3,23 +3,23 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: sp
-  name: sp
+    app: spbls
+  name: spbls
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sp
+      app: spbls
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: sp
+        app: spbls
     spec:
       containers:
       - image: blessedrebus/sp:bls
-        name: sp
+        name: spbls
         env:
           - name: SERVER_THRESHOLD
             valueFrom:
@@ -36,23 +36,23 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: idp
-  name: idp
+    app: idpbls
+  name: idpbls
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: idp
+      app: idpbls
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: idp
+        app: idpbls
     spec:
       containers:
       - image: blessedrebus/idp:bls
-        name: idp
+        name: idpbls
         ports:
         - containerPort: 3000
         resources: {}
@@ -63,12 +63,12 @@ kind: Pod
 metadata:
   creationTimestamp: null
   labels:
-    run: tc
-  name: tc
+    run: tcbls
+  name: tcbls
 spec:
   containers: 
   - image: blessedrebus/tc:bls
-    name: tc
+    name: tcbls
     env:
     - name: TRUSTED_SERVERS
       valueFrom:
@@ -85,12 +85,12 @@ kind: Pod
 metadata:
   creationTimestamp: null
   labels:
-    run: ts1
-  name: ts1
+    run: tsbls1
+  name: tsbls1
 spec:
   containers:
   - image: blessedrebus/ts:bls
-    name: ts1
+    name: tsbls1
     env:
     - name: SERVER_PORT
       value: "5000"
@@ -106,12 +106,12 @@ kind: Pod
 metadata:
   creationTimestamp: null
   labels:
-    run: ts2
-  name: ts2
+    run: tsbls2
+  name: tsbls2
 spec:
   containers:
   - image: blessedrebus/ts:bls
-    name: ts2
+    name: tsbls2
     env:
     - name: SERVER_PORT
       value: "6000"
@@ -127,12 +127,12 @@ kind: Pod
 metadata:
   creationTimestamp: null
   labels:
-    run: ts3
-  name: ts3
+    run: tsbls3
+  name: tsbls3
 spec:
   containers:
   - image: blessedrebus/ts:bls
-    name: ts3
+    name: tsbls3
     env:
     - name: SERVER_PORT
       value: "7000"
@@ -148,8 +148,8 @@ kind: Service
 metadata:
   creationTimestamp: "2023-02-14T14:02:34Z"
   labels:
-    app: idp
-  name: idp
+    app: idpbls
+  name: idpbls
   namespace: default
   resourceVersion: "198654"
   uid: b48ce977-f9dc-423c-97c9-e1546883e90e
@@ -166,7 +166,7 @@ spec:
     protocol: TCP
     targetPort: 3000
   selector:
-    app: idp
+    app: idpbls
   sessionAffinity: None
   type: ClusterIP
 status:
@@ -177,8 +177,8 @@ kind: Service
 metadata:
   creationTimestamp: "2023-02-14T14:02:42Z"
   labels:
-    app: sp
-  name: sp
+    app: spbls
+  name: spbls
   namespace: default
   resourceVersion: "198666"
   uid: d302530e-439a-49f0-987d-c31c0e961747
@@ -195,7 +195,7 @@ spec:
     protocol: TCP
     targetPort: 1111
   selector:
-    app: sp
+    app: spbls
   sessionAffinity: None
   type: ClusterIP
 status:
@@ -206,8 +206,8 @@ kind: Service
 metadata:
   creationTimestamp: "2023-02-14T14:02:50Z"
   labels:
-    run: tc
-  name: tc
+    run: tcbls
+  name: tcbls
   namespace: default
   resourceVersion: "198676"
   uid: c8d485e6-c4e3-4097-af3d-f7721217975f
@@ -224,7 +224,7 @@ spec:
     protocol: TCP
     targetPort: 5000
   selector:
-    run: tc
+    run: tcbls
   sessionAffinity: None
   type: ClusterIP
 status:
@@ -235,8 +235,8 @@ kind: Service
 metadata:
   creationTimestamp: "2023-02-14T14:03:00Z"
   labels:
-    run: ts1
-  name: ts1
+    run: tsbls1
+  name: tsbls1
   namespace: default
   resourceVersion: "198685"
   uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
@@ -249,12 +249,12 @@ spec:
   - IPv4
   ipFamilyPolicy: SingleStack
   ports:
-  - name: ts1
+  - name: tsbls1
     protocol: TCP
     port: 5000
     targetPort: 5000
   selector:
-    run: ts1
+    run: tsbls1
   sessionAffinity: None
   type: ClusterIP
 status:
@@ -265,8 +265,8 @@ kind: Service
 metadata:
   creationTimestamp: "2023-02-14T14:03:00Z"
   labels:
-    run: ts2
-  name: ts2
+    run: tsbls2
+  name: tsbls2
   namespace: default
   resourceVersion: "198685"
   uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
@@ -279,12 +279,12 @@ spec:
   - IPv4
   ipFamilyPolicy: SingleStack
   ports:
-  - name: ts2
+  - name: tsbls2
     protocol: TCP
     port: 6000
     targetPort: 5000
   selector:
-    run: ts2
+    run: tsbls2
   sessionAffinity: None
   type: ClusterIP
 status:
@@ -295,8 +295,8 @@ kind: Service
 metadata:
   creationTimestamp: "2023-02-14T14:03:00Z"
   labels:
-    run: ts3
-  name: ts3
+    run: tsbls3
+  name: tsbls3
   namespace: default
   resourceVersion: "198685"
   uid: 54d1efa2-1085-47d2-ab59-bf5f7a0da4d6
@@ -309,12 +309,12 @@ spec:
   - IPv4
   ipFamilyPolicy: SingleStack
   ports:
-  - name: ts3
+  - name: tsbls3
     protocol: TCP
     port: 7000
     targetPort: 5000
   selector:
-    run: ts3
+    run: tsbls3
   sessionAffinity: None
   type: ClusterIP
 status:

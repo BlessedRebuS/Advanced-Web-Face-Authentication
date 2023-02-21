@@ -4,7 +4,7 @@ metadata:
   name: trust-configuration
 data:
   trusted-servers: |
-    - http://ts1:5000
-    - http://ts2:6000
-    - http://ts3:7000
+    - http://tsbls1:5000
+    - http://tsbls2:6000
+    - http://tsbls3:7000
   threshold: "2"

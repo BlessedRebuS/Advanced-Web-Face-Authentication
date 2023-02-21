@@ -27,8 +27,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # The base URL of the identity provider
-IDP_BASE_URL = 'http://idp:3000'
-SP_BASE_URL = 'http://sp:1111'
+IDP_BASE_URL = 'http://idpbls:3000'
+SP_BASE_URL = 'http://spbls:1111'
     
 class User(UserMixin):
     def __init__(self, id):

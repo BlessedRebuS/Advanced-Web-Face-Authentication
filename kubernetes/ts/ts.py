@@ -18,7 +18,7 @@ except:
         PORT = 5000
         SERVER_NUMBER = "1"
 
-BASE_URL = b'http://ts' +  bytes(str(SERVER_NUMBER), 'utf-8') + b':' + bytes(str(PORT), 'utf-8')
+BASE_URL = b'http://tsbls' +  bytes(str(SERVER_NUMBER), 'utf-8') + b':' + bytes(str(PORT), 'utf-8')
 
 # check if the received encoding is valid
 def checkEncodings(saved_encoding, received_encoding):
