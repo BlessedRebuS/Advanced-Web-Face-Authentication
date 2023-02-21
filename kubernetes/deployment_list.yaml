@@ -193,7 +193,7 @@ spec:
   ports:
   - port: 1111
     protocol: TCP
-    targetPort: 1111
+    targetPort: 5000
   selector:
     app: splist
   sessionAffinity: None
