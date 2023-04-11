@@ -4,24 +4,23 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 import face_recognition
 import numpy 
-import os
+import os 
 
 app = Flask(__name__)
 
-os.system("openssl genrsa -out key1.pem 2048")
-os.system("openssl rsa -in key1.pem -outform PEM -pubout -out public1.pem")
+os.system("openssl genrsa -out key.pem 2048")
+os.system("openssl rsa -in key.pem -outform PEM -pubout -out public.pem")
 
-with open('public1.pem', 'rb') as f:
+with open('public.pem', 'rb') as f:
         public_key = f.read()
 
 
-BASE_URL = b'http://127.0.0.1:6000'
+BASE_URL = b'http://127.0.0.1:5000'
 
 def decript_message(public_key, encrypted_text):
-    rsa_private_key = RSA.importKey(open('key1.pem', "rb").read())
+    rsa_private_key = RSA.importKey(open('key.pem', "rb").read())
     rsa_public_key = RSA.importKey(public_key)
     rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
-    # print('debug encrypted text: {}'.format(encrypted_text))
 
     rsa_private_key = PKCS1_OAEP.new(rsa_private_key)
     decrypted_text = rsa_private_key.decrypt(encrypted_text)
@@ -65,8 +64,9 @@ def handle():
                 return jsonify(data)
         else:
                 check = checkEncodings(saved_encoding, received_encoding)
+                print(f"CHECK: {check}")
                 if(check is True):
-                        print(jsonify(data))
+                        #print("DATA:" + (data))
                         return jsonify(data)
                 else:   
                         error = "ERR"
