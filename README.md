@@ -4,11 +4,48 @@
   <img src="img/trust_network.png" width="700" height="700"/>
 </p>
 
+# Demo
+
+Requirement: [Minikube](https://minikube.sigs.k8s.io/docs/start/) or another Kubernetes cluster to test the enviroment.
+
+The project is divided in branch RSA that uses RSA keys to validate the token and BLS that uses instead the BLS digital signature.
+Inside **kubernetes/deployment_bls.yaml** there is the required deployment to launch a demo.
+You can set up the Trust Servers configuring the **trusted-servers** in the configmap and specify the threshold of the signature based on the security of the system. An example configuration for the servers is the following, defined at the beginning of the deployment.
+
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trust-configuration-bls
+data:
+  trusted-servers: |
+    - http://tsbls1:5000
+    - http://tsbls2:6000
+    - http://tsbls3:7000
+  threshold: "2"
+```
+
+Then you can apply the deployment with the following:
+
+`kubectl apply -f deployment_bls.yaml`
+
+And to reach the server using port-forwarding:
+
+`kubectl port-forward deployment/spbls 1111:5000`
+
+Then, visiting
+
+`http://127.0.0.1:1111/loginface`
+
+The login page can be reached. Inserting `user1` as the Username and taking a picture of the face, the login will proceed and your access will be denied. This is because first you have to insert the encoding of your face inside the database. Using my face from [my LinkedIn account](https://www.linkedin.com/in/patrick-di-fazio/) will let you log in with the user `user1`.
+
+Then what's the purpose of this if you can log-in with a simple photo? Well, this is a Proof of Concept. The aim of the project is to extend the **Biometric Authentication** with some hardware module (fingerprint reader, infrared sensor, etc) and keep the signature logic with RSA or BLS keys.
+
+---
+
 # Introduction
 
 In passwordless authentication systems, the user no longer needs to remember and use the login credentials. The password in this case would be nonexistent and therefore impossible to steal. The end user benefits from this simplicity, being able to use this system as a Single-Sign-On or as a secure method of logging in to a service. Despite using a nontraditional login system, at the application level there will be complete transparency with respect to the authentication system used. There are various modes of passwordless authentication, such as authentication through QR-Code (i.e. scanning a QR code), Magic Links (accessing static pre-made links) or through Biometrics. This project will study passwordless access via facial biometrics, although it is possible to extend the project to any type of biometrics.
-
----
 
 Passwordless authentication has many benefits, but it also has many critical points to be analyzed and on which we must pay attention. Implementation of such an approach must be done following a cost-benefit analysis. In particular, with facial authentication, the access system must maintain stringent constraints to ensure the minimum level of security. 
 
