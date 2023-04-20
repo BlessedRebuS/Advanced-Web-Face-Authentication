@@ -59,12 +59,12 @@ We can see the first graph representing the total number of packets computed and
 During the system usage, a user performing the same login and and logout action, has different bandwidth usage. This is because the two signature modes employ different resources, both in terms of network usage and computing resources. In list mode we note that for the same actions there are **342** packets used, compared to **340** in BLS mode. On the other hand, analyzing the bitrate of both, the **163** Kbit/s of the list mode stands out, against the **152** Kbit/s of the BLS mode: a reasonable result given that the Average packet size of a BLS packet is **316** Bytes, against the **342** of the list mode. We thus note that BLS has about **0.6**% fewer packets used, about a **6.7**% less Kbit/s exchanged during signing, and a **7.6**% smaller Average packet size than the list mode.
 
 <p align="center">
-<h3>BLS</h3>
-  <img src="img/bls_graph.png" width="50%" height="50%"/>
-  <img src="img/bls_io.png" width="50%" height="50%"/>
-  <img src="img/bls_packets.png" width="50%" height="50%"/>
 <h3>RSA</h3>
   <img src="img/list_graph.png" width="50%" height="50%"/>
   <img src="img/list_io.png" width="50%" height="50%"/>
   <img src="img/list_packets.png" width="50%" height="50%"/> 
+<h3>BLS</h3>
+  <img src="img/bls_graph.png" width="50%" height="50%"/>
+  <img src="img/bls_io.png" width="50%" height="50%"/>
+  <img src="img/bls_packets.png" width="50%" height="50%"/>
 </p>
