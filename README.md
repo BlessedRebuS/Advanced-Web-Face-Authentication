@@ -4,7 +4,9 @@
   <img src="img/trust_network.png" width="700" height="700"/>
 </p>
 
+
 # Demo
+The project aims to implement a prototype of facial authentication via the web, using the confirmation of multiple servers to sign requests and authenticate the user on the site. The signature mode implemented is both with RSA keys and BLS encryption. The entire project is deployable with kubernetes.
 
 Requirement: [Minikube](https://minikube.sigs.k8s.io/docs/start/) or another Kubernetes cluster to test the enviroment.
 
